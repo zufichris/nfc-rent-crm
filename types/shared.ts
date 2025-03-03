@@ -1,0 +1,52 @@
+export interface IBaseEntity {
+    id: string;
+    isActive: boolean
+    isDeleted: boolean
+    createdAt: string
+    updatedAt?: string
+    deletedAt?: string
+}
+
+type ResError = {
+    status: number;
+    message: string;
+    success: false;
+}
+
+type ResSuccess<TData> = {
+    success: true;
+    message: string;
+    data: TData;
+}
+
+type ResPaginated<Data = unknown> = {
+    success: true;
+    message: string;
+    data: Data[];
+    total: number;
+    page: number;
+    limit: number;
+}
+
+export type IResponse<Data = unknown> = ResSuccess<Data> | ResError
+
+export type IResponsePaginated<TData = unknown> = ResPaginated<TData> | ResError
+
+
+export class BaseService {
+    methods = {
+        POST: "POST",
+        GET: "GET",
+        PATCH: "PATCH",
+        DELETE: "DELETE"
+    }
+    handleError({
+        message = "An Unexpected Error Occurred",
+        status = 500,
+    }: {
+        message?: string;
+        status?: number;
+    }): ResError {
+        return { status, message, success: false };
+    }
+}
