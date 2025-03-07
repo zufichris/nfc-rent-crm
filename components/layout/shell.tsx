@@ -4,16 +4,8 @@ import { SidebarProvider } from '../ui/sidebar'
 import { AppSidebar } from './app-sidebar'
 import { Header } from './header'
 import { Footer } from './footer'
-import { getLoggedInUser } from '@/lib/actions/auth'
-import SignInPage from '@/app/(auth)/sigin/page'
-
 
 export async function Shell({ children }: Readonly<{ children: React.ReactNode }>) {
-    const res = await getLoggedInUser()
-    if (!res.success) {
-        return <SignInPage />
-    }
-
     return (
         <SidebarProvider>
             <AppSidebar />

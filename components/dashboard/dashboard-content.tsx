@@ -1,5 +1,5 @@
 import { Truck, AlertTriangle, MapPin, Clock } from "lucide-react"
-import { StatCard } from "@/components/dashboard/stat-card"
+import { StatCard } from "@/components/misc/stat-card"
 import { VehicleOverview } from "@/components/dashboard/vehicle-overview"
 import { ShipmentStatistics } from "@/components/dashboard/shipment-statistics"
 import { DeliveryPerformance } from "@/components/dashboard/delivery-performance"
