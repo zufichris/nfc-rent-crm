@@ -3,10 +3,10 @@ import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname
-    request.headers.set('next-url', path)
     const isPublicPath = path === "/signin"
 
-    const isAuthenticated = true
+    const token = request.cookies.get("access_token")
+    const isAuthenticated = token?.value !== undefined
 
     if (!isPublicPath && !isAuthenticated) {
         return NextResponse.redirect(new URL("/signin", request.url))
