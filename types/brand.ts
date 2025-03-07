@@ -1,3 +1,5 @@
+import { IBaseEntity, IBaseFilters, IResponsePaginated } from "./shared";
+
 export interface IBrandTranslation {
     parentId: number;
     name: string;
@@ -8,12 +10,29 @@ export interface IBrandTranslation {
     metaTags?: string;
 }
 
-export interface IBrand {
-    id: number;
+export interface IBrand extends IBaseEntity {
+    name: string;
     code: string;
+    website?: string
     slug: string;
     logo?: string;
     coverImage?: string;
-    translations: IBrandTranslation[];
-    models: any[];
+    shortDescription?: string;
+    description?: string;
+    metadata: {
+        title: string;
+        description: string;
+        tags: string[];
+    }
+    models?: string[];
+}
+
+export type GetBrandsFilters = Partial<{
+    isActive: boolean;
+    isDeleted: boolean;
+} & IBaseFilters>
+
+export type GetBrandsResponse = IResponsePaginated<IBrand> & {
+    activeCount?: number,
+    deletedCount?: number
 }

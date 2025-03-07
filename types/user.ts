@@ -1,3 +1,5 @@
+import { IBaseFilters, IResponsePaginated } from "./shared"
+
 export interface IUser {
     fullName: string
     email: string
@@ -15,6 +17,14 @@ export interface IUser {
     updatedAt?: string
     deletedAt?: string
 }
+export type GetUsersResponse = IResponsePaginated<IUser> & {
+    activeCount?: number,
+    verifiedCount?: number,
+    deletedCount?: number
+}
 
-
-
+export type GetUsersFilters = Partial<{
+    isActive: boolean,
+    roles: string[],
+    isDeleted: boolean,
+} & IBaseFilters>

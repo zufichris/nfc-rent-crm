@@ -7,6 +7,16 @@ export interface IBaseEntity {
     deletedAt?: string
 }
 
+export type IBaseFilters = Partial<{
+    sortBy: string,
+    sortField: string,
+    limit: number,
+    page: number,
+    search: string
+    createdAt: string,
+    updatedAt: string,
+}>
+
 type ResError = {
     status: number;
     message: string;
