@@ -6,11 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/components/ui/use-toast"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Lock, Mail, Loader2 } from 'lucide-react'
-import Link from "next/link"
 import { login } from "@/lib/actions/auth"
+import { toast } from "sonner"
 
 export default function SignInPage() {
   const [email, setEmail] = useState("")
@@ -18,32 +17,22 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [message, setMessage] = useState("")
   const router = useRouter()
-  const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault()
+    setMessage("")
     setIsLoading(true)
     const res = await login({
-      deviceName: navigator.userAgent,
-      location: "here",
       email,
       password,
-      idToken: "id"
     })
-
     if (res.success) {
-      toast({
-        title: "Login successful",
-        description: "You have been logged in successfully.",
-      })
+      toast(res.message)
       router.push("/")
     } else {
-      toast({
-        title: "Login failed",
-        description: "Invalid email or password. Try admin@example.com / password",
-        variant: "destructive",
-      })
+      setMessage(res.message)
     }
     setIsLoading(false)
   }
@@ -89,19 +78,6 @@ export default function SignInPage() {
                   <Label htmlFor="password" className="text-sm font-medium">
                     Password
                   </Label>
-                  <Link
-                    href="#"
-                    className="text-xs text-primary hover:underline"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      toast({
-                        title: "Password reset",
-                        description: "Password reset functionality would go here.",
-                      })
-                    }}
-                  >
-                    Forgot password?
-                  </Link>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
@@ -153,6 +129,7 @@ export default function SignInPage() {
             </CardContent>
 
             <CardFooter className="flex flex-col space-y-4">
+              {message ? <p className="text-destructive text-sm font-bold w-full text-left">{message}</p> : null}
               <Button
                 className="w-full h-11 font-medium text-base transition-all duration-200 hover:shadow-md"
                 type="submit"
@@ -180,7 +157,7 @@ export default function SignInPage() {
               </div>
 
               <div className="flex items-center">
-                <Button variant="outline" className="h-11" onClick={() => toast({ title: "Google Sign In", description: "Google authentication would be implemented here." })}>
+                <Button variant="outline" className="h-11">
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
                     <path
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
