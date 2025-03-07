@@ -1,10 +1,12 @@
 import { generateFakeUser } from "@/mock.data";
 import { BaseService, IResponse, IResponsePaginated } from "@/types/shared";
-import { IUser } from "@/types/user";
+import { GetUsersResponse, IUser } from "@/types/user";
 import { request } from "@/utils/functions";
 import { promisify } from "util";
 
 export class UserService extends BaseService {
+    private readonly user: IUser = generateFakeUser()
+    private readonly users: IUser[] = Array.from({ length: 20 }).map(x => generateFakeUser())
     constructor(private readonly basePath: string) {
         super()
     }
@@ -12,29 +14,32 @@ export class UserService extends BaseService {
         try {
             // const res = await request<IResponse<IUser>>(`/${this.basePath}/${id}`)
             // return res
-            await promisify(setTimeout)(1500)
+            await promisify(setTimeout)(5)
             return ({
                 success: true,
-                data: generateFakeUser(),
+                data: this.user,
                 message: 'User  Retrieved'
             })
         } catch (error) {
             return this.handleError({})
         }
     }
-   
-    async getUsers(query?: string): Promise<IResponsePaginated<IUser>> {
+
+    async getUsers(query?: string): Promise<GetUsersResponse> {
         try {
             // const res = await request<IResponsePaginated<IUser>>(`/${this.basePath}/users/?${query}`)
             // return res
-            await promisify(setTimeout)(3000)
+            await promisify(setTimeout)(10)
             return ({
                 success: true,
-                data: Array.from({ length: 10 }).map(u => generateFakeUser()),
                 message: 'User  Retrieved',
-                limit: 10,
+                limit: this.users.length,
                 page: 1,
-                total: 10
+                total: this.users.length,
+                activeCount: this.users.filter(x => x.isActive).length,
+                verifiedCount: this.users.filter(x => x.emailVerified).length,
+                deletedCount:this.users.filter(x => x.isDeleted).length,
+                data: this.users
             })
         } catch (error) {
             return this.handleError({})

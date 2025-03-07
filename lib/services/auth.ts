@@ -3,6 +3,7 @@ import { BaseService, IResponse } from "@/types/shared";
 import { IUser } from "@/types/user";
 import { request } from "@/utils/functions";
 import { promisify } from "util";
+import { getToken } from "../actions/auth";
 
 export class AuthService extends BaseService {
     constructor(private readonly basePath: string) {
@@ -11,7 +12,10 @@ export class AuthService extends BaseService {
 
     async getLoggedInUser(): Promise<IResponse<IUser>> {
         try {
-            await promisify(setTimeout)(1500)
+            await promisify(setTimeout)(10)
+            const token = await getToken("access_token")
+            if(!token)
+                throw Error("Invalid Token")
             return ({
                 success: true,
                 data: generateFakeUser(),
@@ -30,11 +34,18 @@ export class AuthService extends BaseService {
         location: string;
     }): Promise<IResponse<IUser & { accessToken: string }>> {
         try {
-            const res = await request<IResponse<IUser & { accessToken: string }>>(`${this.basePath}/login`, {
-                method: this.methods.POST,
-                body: JSON.stringify({ ...data, loginType: "email" })
+            // const res = await request<IResponse<IUser & { accessToken: string }>>(`${this.basePath}/login`, {
+            //     method: this.methods.POST,
+            //     body: JSON.stringify({ ...data, loginType: "email" })
+            // })
+            await promisify(setTimeout)(10)
+            if (data.email !== "admin@gmail.com")
+                throw new Error("Invalid Email")
+            return ({
+                success: true,
+                data: { ...generateFakeUser(), accessToken: "token" },
+                message: "Sign In Successful"
             })
-            return res
         } catch (error: unknown) {
             return this.handleError({})
         }
