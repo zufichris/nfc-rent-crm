@@ -1,5 +1,5 @@
-import { IBaseEntity, IBaseFilters, IResponsePaginated } from "./shared";
-
+import { Locale } from "./language";
+import { IBaseEntity, IBaseFilters, IResponsePaginated} from "./shared";
 export interface IBrandTranslation {
     parentId: number;
     name: string;
@@ -25,7 +25,9 @@ export interface IBrand extends IBaseEntity {
         tags: string[];
     }
     models?: string[];
+    translation?: Partial<Record<Locale, IBrandTranslation>> & { en: IBrandTranslation}
 }
+
 
 export type GetBrandsFilters = Partial<{
     isActive: boolean;

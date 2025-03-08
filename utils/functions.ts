@@ -21,3 +21,11 @@ export async function request<T>(path: string, init?: RequestInit, baseUrl?: str
         throw error;
     }
 }
+
+export  function generateSlug(name: string) {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+ return slug
+    }

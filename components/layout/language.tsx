@@ -8,19 +8,16 @@ import {
     SelectTrigger,
 } from "@/components/ui/select"
 import Image from "next/image"
-import { Languages, TLanguage } from "@/types/language"
+import { Languages, Locale, TLanguage } from "@/types/language"
 import { cn } from "@/lib/utils"
 
 export function Language({ className }: Readonly<{ className?: string }>) {
-    const [selectedLanguage, setSelectedLanguage] = React.useState<TLanguage>(
-        Languages.find(e => e.code === "en")!
-    )
+    const defaultLang = Languages.find(l => l.code === "en") ?? Languages[0]
+    const [selectedLanguage, setSelectedLanguage] = React.useState<TLanguage>(defaultLang)
 
-    const handleChange = (value: string) => {
-        const lang = Languages.find(e => e.code === value)
-        if (lang) {
-            setSelectedLanguage(lang)
-        }
+    function handleChange(code: Locale) {
+        const selected = Languages.find(l => l.code === code) ?? defaultLang
+        setSelectedLanguage(selected)
     }
 
     return (
@@ -28,7 +25,7 @@ export function Language({ className }: Readonly<{ className?: string }>) {
             <Select value={selectedLanguage.code} onValueChange={handleChange}>
                 <SelectTrigger>
                     <Image
-                        src={`https://unpkg.com/language-icons/icons/${selectedLanguage.code}.svg`}
+                        src={`https://unpkg.com/language-icons/icons/${selectedLanguage.code.toLowerCase()}.svg`}
                         alt={selectedLanguage.code}
                         height={30}
                         width={30}
@@ -37,10 +34,10 @@ export function Language({ className }: Readonly<{ className?: string }>) {
                     {selectedLanguage.name}
                 </SelectTrigger>
                 <SelectContent>
-                    {Languages.map(lang => (
-                        <SelectItem key={lang.code} value={lang.code} className="cursor-pointer">
+                    {Languages.map(({ name, code }) => (
+                        <SelectItem key={code} value={code} className="cursor-pointer">
                             <div className="flex space-x-1 items-center line-clamp-1">
-                                <span>{lang.name}</span>
+                                <span>{name}</span>
                             </div>
                         </SelectItem>
                     ))}
