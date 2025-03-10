@@ -18,6 +18,7 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import {
+  Bell,
   Calendar,
   Car,
   LineChartIcon as ChartLine,
@@ -25,9 +26,14 @@ import {
   Circle,
   CreditCard,
   DollarSign,
+  FileText,
+  HelpCircle,
   LayoutDashboard,
+  MapIcon,
+  Package,
   Settings,
   Users,
+  Wrench,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "../theme/theme-toggle";
@@ -54,7 +60,7 @@ export const MenuGroups: Group[] = [
     name: "Dashboard",
     icon: <LayoutDashboard className="size-4 mr-2" />,
     links: [
-      { title: "Overview", },
+      { title: "Overview" },
       { title: "Analytics" },
     ],
   },
@@ -62,61 +68,89 @@ export const MenuGroups: Group[] = [
     name: "Fleet Management",
     icon: <Car className="size-4 mr-2" />,
     links: [
-      { title: "Vehicles", },
-      { title: "Maintenance", },
-      { title: "Availability" },
+      { title: "Vehicles" },
+      { title: "Brands" },
     ],
   },
   {
-    name: "Reservations",
-    icon: <Calendar className="size-4 mr-2" />,
-    links: [
-      { title: "New Reservation" },
-      { title: "Reservation List", },
-      { title: "Calendar", },
-    ],
-  },
-  {
-    name: "Customers",
+    name: "Users",
     icon: <Users className="size-4 mr-2" />,
     links: [
-      { title: "Customer List", },
-      { title: "Feedback", },
+      { title: "All Users" },
+      { title: "Roles & Permissions" },
+      { title: "Activity Log" },
     ],
   },
   {
-    name: "Sales",
-    icon: <DollarSign className="size-4 mr-2" />,
+    name: "Maintenance",
+    icon: <Wrench className="size-4 mr-2" />,
     links: [
-      { title: "New Sale", },
-      { title: "Sales History", },
-    ],
-  },
-  {
-    name: "Finance",
-    slug: "finance",
-    icon: <CreditCard className="size-4 mr-2" />,
-    links: [
-      { title: "Invoices", },
-      { title: "Payments", },
+      { title: "Schedules" },
+      { title: "Service Records" },
+      { title: "Mechanics" },
     ],
   },
   {
     name: "Reports",
-    slug: "reports",
-    icon: <ChartLine className="size-4 mr-2" />,
+    icon: <FileText className="size-4 mr-2" />,
     links: [
-      { title: "Performance", },
-      { title: "Revenue", },
+      { title: "Usage Reports" },
+      { title: "Cost Analysis" },
+      { title: "Performance" },
     ],
   },
   {
     name: "Settings",
-    slug: "settings",
     icon: <Settings className="size-4 mr-2" />,
     links: [
-      { title: "User Management" },
-      { title: "System Settings" },
+      { title: "General" },
+      { title: "Notifications" },
+      { title: "Integrations" },
+    ],
+  },
+  {
+    name: "Trips",
+    icon: <MapIcon className="size-4 mr-2" />,
+    links: [
+      { title: "Active Trips" },
+      { title: "Trip History" },
+      { title: "Routes" },
+    ],
+  },
+  {
+    name: "Billing",
+    icon: <CreditCard className="size-4 mr-2" />,
+    links: [
+      { title: "Invoices" },
+      { title: "Payments" },
+      { title: "Subscriptions" },
+    ],
+  },
+  {
+    name: "Inventory",
+    icon: <Package className="size-4 mr-2" />,
+    links: [
+      { title: "Parts" },
+      { title: "Suppliers" },
+      { title: "Stock Levels" },
+    ],
+  },
+  {
+    name: "Notifications",
+    icon: <Bell className="size-4 mr-2" />,
+    links: [
+      { title: "Alerts" },
+      { title: "Messages" },
+      { title: "System Updates" },
+    ],
+  },
+  {
+    name: "Support",
+    icon: <HelpCircle className="size-4 mr-2" />,
+    links: [
+      { title: "Tickets" },
+      { title: "FAQ" },
+      { title: "Contact Us" },
     ],
   },
 ].map(g => ({
@@ -168,9 +202,9 @@ export const AppSidebar = () => {
           <SidebarGroup key={group.slug} className="space-y-1 transition-all duration-200 hover:translate-x-1">
             <SidebarGroupContent>
               <Collapsible open={openGroups[group.slug]} onOpenChange={() => toggleGroup(group.slug)}>
-                <SidebarGroupLabel className="mb-1.5">
+                <SidebarGroupLabel className="mb-2">
                   <CollapsibleTrigger asChild>
-                    <div className="w-full flex justify-between font-bold transition-colors duration-200 hover:text-primary">
+                    <div className="w-full flex justify-between transition-colors duration-200 hover:text-primary font-black uppercase">
                       <div className="flex items-center space-x-1">
                         <span className="transition-transform duration-300 ease-in-out group-hover:rotate-12">
                           {group.icon}
@@ -193,7 +227,7 @@ export const AppSidebar = () => {
                         key={link.slug}
                         href={`/${group.slug}/${link.slug}`}
                         className={cn(
-                          "flex gap-1 items-center px-3 py-2 my-0.5 text-sm rounded-sm transition-all duration-200 ease-in-out",
+                          "flex gap-1 items-center px-3 py-2 my-2 font-semibold text-md rounded-sm transition-all duration-200 ease-in-out capitalize",
                           isLinkActive(group.slug, link.slug)
                             ? "bg-primary/80 text-primary-foreground scale-[1.02] shadow-sm"
                             : "hover:bg-muted hover:translate-x-1",

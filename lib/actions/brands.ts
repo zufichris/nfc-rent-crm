@@ -3,8 +3,8 @@
 import { GetBrandsFilters, GetBrandsResponse, IBrand } from "@/types/brand"
 import { brandsService } from "../services/brand"
 
-export async function getBrandById(id: number) {
-    const res = await brandsService.getBrandById(id)
+export async function getBrandById(id: number|string) {
+    const res = await brandsService.getBrandById(id as number)
     return res
 }
 export async function getBrands(filters?: GetBrandsFilters): Promise<GetBrandsResponse> {

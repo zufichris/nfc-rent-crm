@@ -11,40 +11,36 @@ export function DashboardContent() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          icon={<Truck className="h-6 w-6 text-indigo-500" />}
-          iconBg="bg-indigo-100 dark:bg-indigo-900/30"
+          icon={<Truck className="h-6 w-6" />}
           title="On route vehicles"
           value="42"
           change="+18.2%"
-          changeType="positive"
           subtitle="than last week"
+          variant="info"
         />
         <StatCard
-          icon={<AlertTriangle className="h-6 w-6 text-amber-500" />}
-          iconBg="bg-amber-100 dark:bg-amber-900/30"
+          icon={<AlertTriangle className="h-6 w-6" />}
           title="Vehicles with errors"
           value="8"
           change="-8.7%"
-          changeType="negative"
           subtitle="than last week"
+          variant="warning"
         />
         <StatCard
-          icon={<MapPin className="h-6 w-6 text-rose-500" />}
-          iconBg="bg-rose-100 dark:bg-rose-900/30"
+          icon={<MapPin className="h-6 w-6" />}
           title="Deviated from route"
           value="27"
           change="+4.3%"
-          changeType="positive"
           subtitle="than last week"
+          variant="destructive"
         />
         <StatCard
-          icon={<Clock className="h-6 w-6 text-cyan-500" />}
-          iconBg="bg-cyan-100 dark:bg-cyan-900/30"
+          icon={<Clock className="h-6 w-6" />}
           title="Late vehicles"
           value="13"
           change="+2.5%"
-          changeType="positive"
           subtitle="than last week"
+          variant="success"
         />
       </div>
 
