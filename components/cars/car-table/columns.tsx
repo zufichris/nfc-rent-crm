@@ -1,50 +1,106 @@
-import { Image } from "@/components/misc/image";
-import { DataTableColumn, renderStatus } from "@/components/misc/table/data-table";
+import { format } from "date-fns"
+import { Image } from "@/components/misc/image"
+import { DataTableColumn } from "@/components/misc/table/data-table"
+import { Badge } from "@/components/ui/badge"
+import { CarMedia, CarStatus, ICar } from "@/types/car"
+import { Avatar } from "@/components/ui/avatar"
+import { cn } from "@/lib/utils"
 
-export const CarTableColumns: DataTableColumn[] = [
+function renderCarStatus(car?: ICar) {
+    if (!car) return null
+
+    if (car.isDeleted) {
+        return <Badge variant="destructive">Deleted</Badge>
+    }
+    switch (car.currentStatus) {
+        case CarStatus.AVAILABLE:
+            return <Badge variant="success">Available</Badge>
+        case CarStatus.RENTED:
+            return <Badge variant="warning">Rented</Badge>
+        case CarStatus.RESERVED:
+            return <Badge variant="info">Reserved</Badge>
+        case CarStatus.IN_MAINTENANCE:
+            return <Badge variant="outline">In Maintenance</Badge>
+        case CarStatus.SOLD:
+            return <Badge variant="secondary">Sold</Badge>
+        case CarStatus.IN_TRANSIT:
+            return <Badge variant="outline">In Transit</Badge>
+        case CarStatus.NOT_AVAILABLE:
+            return <Badge variant="ghost">Not Available</Badge>
+        default: return car.currentStatus
+    }
+}
+
+export const CarTableColumns: (Omit<DataTableColumn, 'key'> & { key: keyof ICar })[] = [
     {
-        key: "imageUrl",
+        key: "media",
         name: "Image",
         type: "image",
         className: "w-20 h-20 rounded-sm",
+        render: (value: CarMedia[], item: ICar) => {
+            const thumbnail = value?.find(m => m.isThumbnail) ?? item.media?.[0]
+            return (
+                <Avatar className={cn("h-28 w-28 rounded-md")}>
+                    <Image
+                        src={thumbnail?.url}
+                        alt={thumbnail?.title ?? item.name}
+                        aspectRatio="square"
+                    />
+                </Avatar>
+            )
+        }
     },
     {
-        key: "name",
-        name: "Name",
-        render: (value, item: any) => (
-            <div>
-                <div className="font-medium">{value}</div>
-                <div className="text-sm text-muted-foreground">{item.model}</div>
-            </div>
-        ),
+        key: "translations",
+        name: "Car Details",
+        render: (value, item: ICar) => {
+            const mainTranslation = item
+            return (
+                <div>
+                    <div className="font-medium">{mainTranslation?.name || "Unnamed Car"}</div>
+                    <div className="text-sm text-muted-foreground line-clamp-1">{mainTranslation?.shortDescription}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                        {item.year} • {item.model} • VIN: {item.vin.substring(0, 8)}...
+                    </div>
+                </div>
+            )
+        },
     },
     {
-        key: "brand",
-        name: "Brand",
-        render: (value, item: any) => (
-            <>
-                <Image src={item?.brandImage} alt={value} aspectRatio="square" className="shadow-md rounded-full h-6 w-6" />
-                <div className="text-muted-foreground text-center uppercase">{value}</div>
-            </>
-        ),
+        key: "category",
+        name: "Category",
+        render: (value) => (
+            <Badge variant="outline" className="capitalize">
+                {value?.replace(/_/g, ' ').toLowerCase()}
+            </Badge>
+        )
     },
     {
-        key: "year",
-        name: "Year",
-    },
-    {
-        key: "price",
-        name: "Price",
-        render: (value) => `$${value.toLocaleString()}`,
-    },
-    {
-        key: "status",
+        key: "currentStatus",
         name: "Status",
-        render: (_, item) => renderStatus(item)
+        render: (_, item) => renderCarStatus(item)
+    },
+    {
+        key: "listingType",
+        name: "Listing Type",
+        render: (value) => {
+            if (!value || !Array.isArray(value)) return null
+
+            return (
+                <div className="flex flex-wrap gap-1">
+                    {value.map((type) => (
+                        <Badge key={type} variant="secondary" className="capitalize">
+                            {type.replace(/_/g, ' ').toLowerCase()}
+                        </Badge>
+                    ))}
+                </div>
+            )
+        }
     },
     {
         key: "createdAt",
         name: "Added On",
-        type: "date"
+        type: "date",
+        render: (value) => format(new Date(value), "PPP")
     },
 ]

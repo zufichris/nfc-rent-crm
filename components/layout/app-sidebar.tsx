@@ -73,10 +73,10 @@ export const MenuGroups: Group[] = [
     ],
   },
   {
-    name: "Users",
+    name: "Users Management",
     icon: <Users className="size-4 mr-2" />,
     links: [
-      { title: "All Users" },
+      { title: "Users" },
       { title: "Roles & Permissions" },
       { title: "Activity Log" },
     ],
