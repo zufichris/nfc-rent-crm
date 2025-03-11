@@ -81,27 +81,11 @@
 }
 
 @layer utilities {
-  .bg-grid-pattern {
-    background-image: linear-gradient(
-        to right,
-        rgba(0, 0, 0, 0.1) 1px,
-        transparent 1px
-      ),
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-
-  .dark .bg-grid-pattern {
-    background-image: linear-gradient(
-        to right,
-        rgba(255, 255, 255, 0.1) 1px,
-        transparent 1px
-      ),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  }
-
   .card {
-    @apply bg-card shadow-lg rounded-xl;
+    @apply bg-card shadow-lg rounded-xl border-0  backdrop-blur-sm;
+  }
+  .border{
+    @apply dark:border-secondary;
   }
   .scrollbar {
     &::-webkit-scrollbar {

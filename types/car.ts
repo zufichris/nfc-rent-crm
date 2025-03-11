@@ -1,7 +1,8 @@
 import { Locale } from "./language";
 import { MediaItem } from "./media";
 import { RentalPricingDto } from "./pricing";
-import { IBaseEntity } from "./shared";
+import { IBaseEntity, IBaseFilters, IResponsePaginated } from "./shared";
+
 
 export enum CarCategory {
     LUXURY_SEDAN = 'LUXURY_SEDAN',
@@ -132,6 +133,40 @@ export interface CarDocumentDto extends IBaseEntity {
 
 export type DateInputType = string | Date;
 export type NonEmptyArray<T> = [T, ...T[]];
+export interface ICar extends IBaseEntity {
+    name: string;
+    shortDescription?: string;
+    description?: string;
+    color?: { name: string; code?: string };
+    interiorColor?: { name: string; code?: string };
+    vin: string
+    blockchainId?: string
+    year: number
+    category: string
+    fuelType: string
+    transmission: string
+    doors: number
+    seats: number
+    metaverseAssetId?: string
+    currentStatus: string
+    listingType: string[]
+    acquisitionDate?: string | Date
+    mileage: number
+    condition: string
+    inspectionStatus: string
+    lastInspectionDate?: string | Date
+    nextInspectionDueDate?: string | Date
+    engineSpecs: EngineSpecs
+    dimensions: Dimensions
+    media: CarMedia[]
+    model: string
+    features?: string[]
+    rentalPricings?: RentalPricingDto[]
+    documents?: CarDocumentDto[]
+    owner?: CarOwnership
+    translations?: CarTranslation[]
+}
+
 
 export interface CreateCarDTO {
     vin: string;
@@ -164,4 +199,12 @@ export interface CreateCarDTO {
 
 export interface UpdateCarDTO extends Partial<CreateCarDTO> { }
 
+export type GetCarsFilter = Partial<{
+    isActive: boolean;
+    isDeleted: boolean;
+} & IBaseFilters>
 
+export type GetCarsResponse = IResponsePaginated<ICar> & {
+    activeCount?: number,
+    deletedCount?: number
+}

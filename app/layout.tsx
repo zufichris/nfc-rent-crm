@@ -22,7 +22,7 @@ export default async function RootLayout({
   const res = await getLoggedInUser()
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-foreground/10 dark:bg-background/55`}>
+      <body className={`${inter.className} bg-foreground/10 dark:bg-background/55 bg-opacity-50 backdrop-blur-md`}>
         <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
           {res.success ? <Shell>{children}</Shell> : children}
           <Toaster closeButton visibleToasts={2} className="card" />
