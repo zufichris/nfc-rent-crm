@@ -2,7 +2,7 @@ import { CarListTable } from "@/components/cars/car-table/table"
 import { getCars } from "@/lib/actions/cars"
 import { GetCarsFilter } from "@/types/car"
 import { StatCard } from "@/components/misc/stat-card"
-import ErrorPage from "@/app/error"
+import ErrorPage from "@/app/[locale]/error"
 import { Activity, CarIcon, Check, Trash2 } from "lucide-react"
 
 export default async function CarsPage({

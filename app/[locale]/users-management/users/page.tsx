@@ -1,4 +1,4 @@
-import ErrorPage from '@/app/error'
+import ErrorPage from '@/app/[locale]/error'
 import { StatCard } from '@/components/misc/stat-card'
 import { UserTable } from '@/components/user/user-table/table'
 import { getUsers } from '@/lib/actions/user'

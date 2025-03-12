@@ -10,14 +10,27 @@ import {
 import Image from "next/image"
 import { Languages, Locale, TLanguage } from "@/types/language"
 import { cn } from "@/lib/utils"
+import { Link, redirect, usePathname, useRouter } from "@/i18n/routing"
+import { useSearchParams } from "next/navigation"
+import { useLocale } from "next-intl"
 
 export function Language({ className }: Readonly<{ className?: string }>) {
-    const defaultLang = Languages.find(l => l.code === "en") ?? Languages[0]
+    const searchParams = (useSearchParams())?.toString();
+    const pathname = usePathname()
+    const locale = useLocale();
+    const router = useRouter()
+    const defaultLang = Languages.find(l => l.code === (locale ?? "en")) ?? Languages[0]
+
+
     const [selectedLanguage, setSelectedLanguage] = React.useState<TLanguage>(defaultLang)
 
     function handleChange(code: Locale) {
         const selected = Languages.find(l => l.code === code) ?? defaultLang
         setSelectedLanguage(selected)
+        redirect({
+            href: `${pathname}?${searchParams}`,
+            locale: selected.code
+        })
     }
 
     return (
