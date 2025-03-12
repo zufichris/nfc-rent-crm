@@ -29,7 +29,7 @@ export function StatCard({ icon, title, value, change, variant, subtitle }: Read
         </div>
         <div className="mt-4">
           <span
-            className={cn("text-sm font-medium", color, "hover:bg-none")}
+            className={cn("text-sm font-medium", color, "bg-transparent","hover:bg-none")}
           >
             {change}
           </span>
