@@ -26,13 +26,7 @@ export class AuthService extends BaseService {
         }
     }
 
-    async login(data: {
-        email?: string;
-        password?: string;
-        idToken?: string;
-        deviceName: string;
-        location: string;
-    }): Promise<IResponse<IUser & { accessToken: string }>> {
+    async login(data: any): Promise<IResponse<IUser & { accessToken: string }>> {
         try {
             // const res = await request<IResponse<IUser & { accessToken: string }>>(`${this.basePath}/login`, {
             //     method: this.methods.POST,
