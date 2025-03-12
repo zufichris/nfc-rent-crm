@@ -56,161 +56,177 @@ function renderCarStatus(car?: ICar) {
     }
 }
 
-function ViewCarModal({ car, isOpen, onClose }: ModalProps & { car?: ICar }) {
-    if (!car) return null
-    const thumbnail = car.media?.find(m => m.isThumbnail) ?? car.media?.[0]
-
+const ViewCarModal = ({ car, onClose, isOpen }: Readonly<CarActionsModalProps>) => {
+    const thumbnail = car?.media?.sort((a, b) => (a?.position ?? 0) - (b?.position ?? 0))[0]
+  
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-md">
-                <DialogHeader
-                    className={cn("p-6 rounded-t-lg flex flex-col items-center gap-4 bg-primary/35 relative overflow-hidden bg-opacity-20")}
-                    style={{
-                        backgroundImage: thumbnail ? `url(${thumbnail.url})` : undefined,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                    }}
-                >
-                    {thumbnail && <div className="absolute inset-0 bg-black/40 z-0"></div>}
-
-                    <div className="flex-shrink-0 z-10">
-                        <Avatar className="h-24 w-24 border-2 shadow-md">
-                            {thumbnail ? (
-                                <AvatarImage src={thumbnail.url} alt={car?.name} />
-                            ) : (
-                                <AvatarFallback className="text-xl">
-                                    <Car className="h-12 w-12" />
-                                </AvatarFallback>
-                            )}
-                        </Avatar>
-                    </div>
-                    <div className="flex-1 text-center z-10">
-                        <DialogTitle className="text-xl mb-1">{car?.name || "Unnamed Car"}</DialogTitle>
-                        <div className="text-sm flex items-center justify-center gap-1">
-                            {car.year} {car.model}
-                        </div>
-                        <div className="mt-2">{renderCarStatus(car)}</div>
-                    </div>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                        <Label>VIN</Label>
-                        <div className="text-sm font-medium">{car.vin}</div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label>Category</Label>
-                            <div className="text-sm">
-                                <Badge variant="outline" className="mt-1 capitalize">
-                                    {car.category?.replace(/_/g, ' ').toLowerCase()}
-                                </Badge>
-                            </div>
-                        </div>
-                        <div>
-                            <Label>Listing Type</Label>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                                {car.listingType?.map((type) => (
-                                    <Badge key={type} variant="secondary" className="capitalize">
-                                        {type.replace(/_/g, ' ').toLowerCase()}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    {car?.shortDescription && (
-                        <div className="grid gap-2">
-                            <Label>Short Description</Label>
-                            <div className="text-sm text-muted-foreground">{car.shortDescription}</div>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label>Fuel Type</Label>
-                            <div className="text-sm capitalize">
-                                {car.fuelType?.toLowerCase().replace(/_/g, ' ')}
-                            </div>
-                        </div>
-                        <div>
-                            <Label>Transmission</Label>
-                            <div className="text-sm capitalize">
-                                {car.transmission?.toLowerCase().replace(/_/g, ' ')}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <Label>Doors</Label>
-                            <div className="text-sm">{car.doors}</div>
-                        </div>
-                        <div>
-                            <Label>Seats</Label>
-                            <div className="text-sm">{car.seats}</div>
-                        </div>
-                        <div>
-                            <Label>Mileage</Label>
-                            <div className="text-sm">{car.mileage} km</div>
-                        </div>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label>Engine Specs</Label>
-                        <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-2">
-                            <div>
-                                <strong>Horsepower:</strong> {car.engineSpecs?.horsepower} HP
-                            </div>
-                            <div>
-                                <strong>Torque:</strong> {car.engineSpecs?.torque} Nm
-                            </div>
-                            <div>
-                                <strong>Top Speed:</strong> {car.engineSpecs?.topSpeed} km/h
-                            </div>
-                            <div>
-                                <strong>Acceleration:</strong> {car.engineSpecs?.acceleration}s (0-100 km/h)
-                            </div>
-                        </div>
-                    </div>
-
-                    {car.features && car.features.length > 0 && (
-                        <div className="grid gap-2">
-                            <Label>Features</Label>
-                            <div className="flex flex-wrap gap-2">
-                                {car.features.map((feature, index) => (
-                                    <Badge key={index} variant="outline">
-                                        {feature}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label>Created At</Label>
-                            <div className="text-sm">{format(new Date(car.createdAt), "PPP")}</div>
-                        </div>
-                        {car.updatedAt && (
-                            <div>
-                                <Label>Updated At</Label>
-                                <div className="text-sm">{format(new Date(car.updatedAt), "PPP")}</div>
-                            </div>
-                        )}
-                    </div>
+      <Dialog open={isOpen}>
+        <DialogContent className="max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader
+            className={cn(
+              "p-6 rounded-t-lg flex flex-col items-center gap-4 relative",
+              "bg-gradient-to-b from-primary/10 to-background/80 dark:from-primary/5 dark:to-background/95",
+            )}
+            style={{
+              backgroundImage: thumbnail ? `url(${thumbnail.url})` : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            {thumbnail && (
+              <div className="absolute inset-0 backdrop-blur-sm bg-background/60 dark:bg-background/80 z-0"></div>
+            )}
+  
+            <div className="flex-shrink-0 z-10">
+              <Avatar className="h-24 w-24 border-4 border-background shadow-xl">
+                {thumbnail ? (
+                  <AvatarImage src={thumbnail.url} alt={car?.name} />
+                ) : (
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    <Car className="h-12 w-12" />
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </div>
+            <div className="flex-1 text-center z-10">
+              <DialogTitle className="text-2xl font-bold mb-1 text-foreground">{car?.name}</DialogTitle>
+              <div className="text-sm flex items-center justify-center gap-1 text-muted-foreground font-medium">
+                {car?.year} {car?.model}
+              </div>
+              <div className="mt-3">{renderCarStatus(car)}</div>
+            </div>
+          </DialogHeader>
+  
+          <div className="overflow-y-auto scrollbar px-6 py-5 space-y-6 flex-1">
+            <div className="grid gap-2">
+              <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">VIN</Label>
+              <div className="text-sm font-mono bg-accent/10 p-2 rounded-md border">{car?.vin}</div>
+            </div>
+  
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Category</Label>
+                <div className="mt-2">
+                  <Badge variant="outline" className="capitalize">
+                    {car?.category?.replace(/_/g, " ").toLowerCase() || "N/A"}
+                  </Badge>
                 </div>
-                <DialogFooter>
-                    <Button size={"sm"} variant={"outline"} onClick={onClose}>Close</Button>
-                    <Button asChild size={"sm"} onClick={onClose}>
-                        <Link href={`/fleet-management/vehicles/${car.id}`}>
-                        Full Details<ArrowRight size={20}/></Link>
-                         </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+              </div>
+              <div>
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Listing Type</Label>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {car?.listingType?.map((type: string) => (
+                    <Badge key={type} variant="secondary" className="capitalize">
+                      {type.replace(/_/g, " ").toLowerCase()}
+                    </Badge>
+                  )) || <span className="text-sm text-muted-foreground">None specified</span>}
+                </div>
+              </div>
+            </div>
+  
+            {car?.shortDescription && (
+              <div className="grid gap-2">
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Description</Label>
+                <div className="text-sm text-muted-foreground bg-accent/10 p-3 rounded-md border italic">
+                  {car.shortDescription}
+                </div>
+              </div>
+            )}
+  
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Fuel Type</Label>
+                <div className="text-sm font-medium mt-2 capitalize">
+                  {car?.fuelType?.toLowerCase().replace(/_/g, " ") || "N/A"}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Transmission</Label>
+                <div className="text-sm font-medium mt-2 capitalize">
+                  {car?.transmission?.toLowerCase().replace(/_/g, " ") || "N/A"}
+                </div>
+              </div>
+            </div>
+  
+            <div className="grid grid-cols-3 gap-4 bg-accent/10 p-3 rounded-md border">
+              <div className="text-center">
+                <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide mb-1">Doors</div>
+                <div className="text-lg font-semibold">{car?.doors || "N/A"}</div>
+              </div>
+              <div className="text-center border-x">
+                <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide mb-1">Seats</div>
+                <div className="text-lg font-semibold">{car?.seats || "N/A"}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide mb-1">Mileage</div>
+                <div className="text-lg font-semibold">{car?.mileage ? `${car.mileage} km` : "N/A"}</div>
+              </div>
+            </div>
+  
+            <div className="grid gap-3">
+              <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Engine Specs</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-accent/10 p-3 rounded-md border">
+                  <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide mb-1">Horsepower</div>
+                  <div className="text-lg font-semibold">{car?.engineSpecs?.horsepower || "N/A"} HP</div>
+                </div>
+                <div className="bg-accent/10 p-3 rounded-md border">
+                  <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide mb-1">Torque</div>
+                  <div className="text-lg font-semibold">{car?.engineSpecs?.torque || "N/A"} Nm</div>
+                </div>
+                <div className="bg-accent/10 p-3 rounded-md border">
+                  <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide mb-1">Top Speed</div>
+                  <div className="text-lg font-semibold">{car?.engineSpecs?.topSpeed || "N/A"} km/h</div>
+                </div>
+                <div className="bg-accent/10 p-3 rounded-md border">
+                  <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide mb-1">0-100 km/h</div>
+                  <div className="text-lg font-semibold">{car?.engineSpecs?.acceleration || "N/A"}s</div>
+                </div>
+              </div>
+            </div>
+  
+            {car?.features && car?.features.length > 0 && (
+              <div className="grid gap-3">
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Features</Label>
+                <div className="flex flex-wrap gap-2 bg-accent/10 p-3 rounded-md border">
+                  {car.features.map((feature: string, index: number) => (
+                    <Badge key={index + feature} variant="outline" className="bg-background/80">
+                      {feature}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+  
+            <div className="grid grid-cols-2 gap-6 text-sm text-muted-foreground">
+              <div>
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Created</Label>
+                <div className="mt-2">{car?.createdAt ? format(new Date(car.createdAt), "PPP") : "N/A"}</div>
+              </div>
+              {car?.updatedAt && (
+                <div>
+                  <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Updated</Label>
+                  <div className="mt-2">{format(new Date(car.updatedAt), "PPP")}</div>
+                </div>
+              )}
+            </div>
+          </div>
+  
+          <DialogFooter className="px-6 py-4 border-t flex justify-between w-full">
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+            <Button asChild onClick={onClose}>
+              <Link href={`/fleet-management/vehicles/${car?.id}`}>
+                Full Details
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     )
-}
+  }
 
 function DeleteCarModal({ car, isOpen, onClose, onSuccess }: ModalProps & { car?: ICar }) {
     const [isDeleting, setIsDeleting] = useState(false)
