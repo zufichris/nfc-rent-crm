@@ -35,8 +35,8 @@ import {
   CarInspectionStatus,
 } from "@/types/car"
 import { CarPricingUnit } from "@/types/pricing"
-async function createCar(car:any):Promise<any>{}
-async function updateCar(id:any,car:any):Promise<any>{}
+async function createCar(car: any): Promise<any> { }
+async function updateCar(id: any, car: any): Promise<any> { }
 const carFormSchema = z.object({
   vin: z.string().min(2, { message: "VIN must be at least 2 characters." }),
   blockchainId: z.string().optional(),
@@ -126,7 +126,7 @@ interface CarFormProps {
   car?: ICar
 }
 
-export default function CarForm({ car }: Readonly<CarFormProps>) {
+export function CarForm({ car }: Readonly<CarFormProps>) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
@@ -175,23 +175,10 @@ export default function CarForm({ car }: Readonly<CarFormProps>) {
       model: car?.model ?? "",
       features: car?.features ?? [],
       rentalPricings: car?.rentalPricings ?? [{ duration: 1, unit: "DAY", price: 0, currency: "USD" }],
-      translations: car?.translations ?? [{ name: "", shortDescription: "", description: "", locale: "en" }],
+      translations: car?.translations ?? [{ name: car?.name, shortDescription: car?.shortDescription, description: car?.description, locale: "en" }],
       isActive: car?.isActive ?? true,
     },
   })
-
-//   useEffect(() => {
-//     const subscription = form.watch((value, { name }) => {
-//       if (
-//         name === "translations[0].name" ||
-//         name === "translations[0].shortDescription" ||
-//         name === "translations[0].description"
-//       ) {
-//         // Update English translation when main fields change
-//       }
-//     })
-//     return () => subscription.unsubscribe()
-//   }, [form])
 
   async function onSubmit(data: CarFormValues) {
     setIsSubmitting(true)
@@ -199,11 +186,11 @@ export default function CarForm({ car }: Readonly<CarFormProps>) {
       if (car) {
         const res = await updateCar(car.id, data as any)
         toast.success("Car updated successfully")
-        router.push(`/cars/${car.id}`)
+        router.push(`/fleet-management/vehicles/${car.id}`)
       } else {
         const res = await createCar(data as any)
         toast.success("Car created successfully")
-        router.push("/cars")
+        router.push("`/fleet-management/vehicles")
       }
     } catch (error) {
       console.error("Error submitting form:", error)
@@ -783,8 +770,8 @@ function Specifications({ form }: Readonly<{ form: FormType }>) {
           </div>
 
           {form.watch("fuelType") === "ELECTRIC" ||
-          form.watch("fuelType") === "HYBRID" ||
-          form.watch("fuelType") === "PLUG_IN_HYBRID" ? (
+            form.watch("fuelType") === "HYBRID" ||
+            form.watch("fuelType") === "PLUG_IN_HYBRID" ? (
             <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -1448,11 +1435,11 @@ function Translation({
           const updatedTranslations = currentTranslations.map((t) =>
             t.locale === activeLocale
               ? {
-                  ...t,
-                  name: translatedContent.name ?? t.name,
-                  description: translatedContent.description ?? t.description,
-                  shortDescription: translatedContent.shortDescription ?? t.shortDescription,
-                }
+                ...t,
+                name: translatedContent.name ?? t.name,
+                description: translatedContent.description ?? t.description,
+                shortDescription: translatedContent.shortDescription ?? t.shortDescription,
+              }
               : t,
           )
 
