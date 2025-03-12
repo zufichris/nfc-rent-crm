@@ -89,12 +89,12 @@ export function BrandListTable({
         selectedItems={selectedBrands}
         actions={brandActions}
         activeFilters={activeFilters}
-        onAdd={() => router.push("/brands/new")}
+        onAdd={() => router.push("/fleet-management/brands/new")}
         onView={(brand: IBrand) => {
           setSelectedBrand(brand);
           setActionType("view");
         }}
-        onEdit={(brand: IBrand) => router.push(`/brands/${brand.id}/edit`)}
+        onEdit={(brand: IBrand) => router.push(`/fleet-management/brands/${brand.id}/edit`)}
         onDelete={(brand: IBrand) => {
           setSelectedBrand(brand);
           setActionType("delete");
