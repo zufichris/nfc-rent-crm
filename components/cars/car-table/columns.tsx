@@ -51,14 +51,13 @@ export const CarTableColumns: (Omit<DataTableColumn, 'key'> & { key: keyof ICar 
         }
     },
     {
-        key: "translations",
+        key: "name",
         name: "Car Details",
-        render: (value, item: ICar) => {
-            const mainTranslation = item
+        render: (name, item: ICar) => {
             return (
                 <div>
-                    <div className="font-medium">{mainTranslation?.name || "Unnamed Car"}</div>
-                    <div className="text-sm text-muted-foreground line-clamp-1">{mainTranslation?.shortDescription}</div>
+                    <div className="font-medium">{name}</div>
+                    <div className="text-sm text-muted-foreground line-clamp-1">{item.shortDescription}</div>
                     <div className="text-xs text-muted-foreground mt-1">
                         {item.year} • {item.model} • VIN: {item.vin.substring(0, 8)}...
                     </div>
