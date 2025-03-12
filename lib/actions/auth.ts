@@ -5,10 +5,11 @@ import { authService } from "../services/auth";
 import { userAgent } from "next/server";
 import { redirect } from "next/navigation";
 import { request } from "@/utils/functions";
+import { userService } from "../services/user";
 
 
 export async function getLoggedInUser() {
-    const res = await authService.getLoggedInUser()
+    const res = await userService.getUserById(1)
     return res
 }
 
@@ -16,11 +17,10 @@ export async function login(data: {
     email?: string;
     password?: string;
 }) {
-    const userAgent = await getUserAgent()
-    const res = await authService.login({ ...data, ...userAgent })
-    if (res.success) {
-        await setCookie("access_token", res.data.accessToken)
-    }
+    const res = await authService.login(data)
+    // if (res.success) {
+    //     await setCookie("access_token", res.data.accessToken)
+    // }
     return res
 }
 
@@ -38,18 +38,18 @@ export async function logout() {
 }
 
 export async function getUserAgent() {
-    const headersList = await headers()
-    const agent = userAgent({ headers: headersList })
-    const ip = headersList.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
+    // const headersList = await headers()
+    // const agent = userAgent({ headers: headersList })
+    // const ip = headersList.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
     let location = 'unknown';
-    try {
-        const data = await request<{ city: string, country_name: string }>(`/${ip}/json/`, undefined, "https://ipapi.co");
-        location = data?.city ? `${data.city}, ${data.country_name}` : "unknown"
+    // try {
+    //     const data = await request<{ city: string, country_name: string }>(`/${ip}/json/`, undefined, "https://ipapi.co");
+    //     location = data?.city ? `${data.city}, ${data.country_name}` : "unknown"
 
-    } catch (error) {
-        console.error('Failed to fetch location:', error);
-    }
-    return { location, deviceName: `${agent.device.vendor} ${agent.device.vendor}`, idToken: agent.ua }
+    // } catch (error) {
+    //     console.error('Failed to fetch location:', error);
+    // }
+    return ({ location, deviceName: `${"agent.device.vendor"} ${"agent.device.vendor"}`, idToken: "agent.ua" })
 }
 
 export async function setCookie(key: "access_token", value: string) {
