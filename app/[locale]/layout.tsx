@@ -1,0 +1,46 @@
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "@/components/theme/globals.css"
+import { ThemeProvider } from "@/components/theme/theme-provider"
+import { Shell } from "@/components/layout/shell"
+import { getLoggedInUser } from "@/lib/actions/auth"
+import { Toaster } from "@/components/ui/sonner"
+import { Locale } from "@/types/language"
+import { NextIntlClientProvider } from "next-intl"
+import { routing } from "@/i18n/routing"
+import { notFound } from "next/navigation"
+import { getMessages } from "next-intl/server"
+const inter = Inter({ subsets: ["latin"] })
+
+export const metadata: Metadata = {
+  title: "NFC- Dashboard",
+  description: "NFC Rent Dashboard",
+}
+
+export default async function RootLayout({
+  children,
+  params
+}: Readonly<{
+  children: React.ReactNode,
+  params: Promise<{ locale: Locale }>
+}>) {
+  const { locale } = await params;
+  if (!locale || !routing.locales.includes(locale)) {
+    notFound()
+  }
+  const messages = await getMessages();
+  const res = await getLoggedInUser()
+  return (
+    <html lang={locale} suppressHydrationWarning>
+      <body className={`${inter.className} bg-foreground/10 dark:bg-background/55 bg-opacity-50 backdrop-blur-md`}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
+            {res.success ? <Shell>{children}</Shell> : children}
+            <Toaster closeButton visibleToasts={2} className="card" />
+          </ThemeProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  )
+}
