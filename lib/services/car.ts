@@ -14,7 +14,7 @@ export class CarService extends BaseService {
         try {
             // const res = await request<IResponse<ICar>>(`${this.basePath}/${id}`)
             // return res
-            await promisify(setTimeout)(100)
+            await promisify(setTimeout)(1900)
             return ({
                 success: true,
                 message: "Car Retrieved",
