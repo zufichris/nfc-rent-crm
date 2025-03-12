@@ -199,7 +199,7 @@ export default function BrandForm({ brand }: Readonly<BrandFormProps>) {
 
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
+    <div className="">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
           <div className="space-y-6">
@@ -406,32 +406,32 @@ function Description({ form }: Readonly<{ form: FormType }>) {
   return (
     <Card>
       <CardContent className="pt-6 space-y-8">
+        <div className="flex items-center justify-center">
+          <Button
+            type="button"
+            className={cn(getVariant("default", { invert: true }))}
+            onClick={generateSuggestions}
+            disabled={isGenerating}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate Descriptions with AI
+              </>
+            )}
+          </Button>
+        </div>
         <FormField
           control={form.control}
           name="shortDescription"
           render={({ field }) => (
             <FormItem className="space-y-4">
-              <div className="flex items-center justify-between">
-                <FormLabel>Short Description*</FormLabel>
-                <Button
-                  type="button"
-                  className={cn(getVariant("default", { invert: true }))}
-                  onClick={generateSuggestions}
-                  disabled={isGenerating}
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Generate AI Suggestions
-                    </>
-                  )}
-                </Button>
-              </div>
+              <FormLabel>Short Description*</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Enter a brief description of the brand"
