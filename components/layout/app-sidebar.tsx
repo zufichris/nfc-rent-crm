@@ -8,6 +8,8 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -18,22 +20,16 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import {
-  Bell,
-  Calendar,
+  CalendarCheck,
   Car,
   LineChartIcon as ChartLine,
   ChevronRight,
   Circle,
   CreditCard,
-  DollarSign,
-  FileText,
-  HelpCircle,
   LayoutDashboard,
-  MapIcon,
-  Package,
   Settings,
+  Shield,
   Users,
-  Wrench,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "../theme/theme-toggle";
@@ -73,84 +69,44 @@ export const MenuGroups: Group[] = [
     ],
   },
   {
-    name: "Users Management",
+    name: "Bookings",
+    icon: <CalendarCheck className="size-4 mr-2" />,
+    links: [
+      { title: "Booking List" },
+    ],
+  },
+  {
+    name: "Customers",
     icon: <Users className="size-4 mr-2" />,
+    links: [
+      { title: "All Customers" },
+      { title: "Blacklist" },
+    ],
+  },
+  {
+    name: "Payments",
+    icon: <CreditCard className="size-4 mr-2" />,
+    links: [
+      { title: "Transactions" },
+      { title: "Refunds" },
+      { title: "Invoices" },
+    ],
+  },
+  {
+    name: "Users Management",
+    icon: <Shield className="size-4 mr-2" />,
     links: [
       { title: "Users" },
       { title: "Roles & Permissions" },
-      { title: "Activity Log" },
-    ],
-  },
-  {
-    name: "Maintenance",
-    icon: <Wrench className="size-4 mr-2" />,
-    links: [
-      { title: "Schedules" },
-      { title: "Service Records" },
-      { title: "Mechanics" },
-    ],
-  },
-  {
-    name: "Reports",
-    icon: <FileText className="size-4 mr-2" />,
-    links: [
-      { title: "Usage Reports" },
-      { title: "Cost Analysis" },
-      { title: "Performance" },
     ],
   },
   {
     name: "Settings",
     icon: <Settings className="size-4 mr-2" />,
     links: [
-      { title: "General" },
+      { title: "General Settings" },
+      { title: "Pricing Rules" },
       { title: "Notifications" },
-      { title: "Integrations" },
-    ],
-  },
-  {
-    name: "Trips",
-    icon: <MapIcon className="size-4 mr-2" />,
-    links: [
-      { title: "Active Trips" },
-      { title: "Trip History" },
-      { title: "Routes" },
-    ],
-  },
-  {
-    name: "Billing",
-    icon: <CreditCard className="size-4 mr-2" />,
-    links: [
-      { title: "Invoices" },
-      { title: "Payments" },
-      { title: "Subscriptions" },
-    ],
-  },
-  {
-    name: "Inventory",
-    icon: <Package className="size-4 mr-2" />,
-    links: [
-      { title: "Parts" },
-      { title: "Suppliers" },
-      { title: "Stock Levels" },
-    ],
-  },
-  {
-    name: "Notifications",
-    icon: <Bell className="size-4 mr-2" />,
-    links: [
-      { title: "Alerts" },
-      { title: "Messages" },
-      { title: "System Updates" },
-    ],
-  },
-  {
-    name: "Support",
-    icon: <HelpCircle className="size-4 mr-2" />,
-    links: [
-      { title: "Tickets" },
-      { title: "FAQ" },
-      { title: "Contact Us" },
     ],
   },
 ].map(g => ({
@@ -172,7 +128,7 @@ export const AppSidebar = () => {
     const initialState: Record<string, boolean> = {}
 
     MenuGroups.forEach((group) => {
-      const isActive = group.links.some((link) => pathname === `/${group.slug}/${link.slug}`)
+      const isActive = group.links.some((link) => pathname.includes(`/${group.slug}/${link.slug}`))
       initialState[group.slug] = isActive
     })
 
@@ -187,7 +143,7 @@ export const AppSidebar = () => {
   }
 
   const isLinkActive = (groupSlug: string, linkSlug: string) => {
-    return pathname === `/${groupSlug}/${linkSlug}`
+    return pathname.includes(`/${groupSlug}/${linkSlug}`)
   }
 
   return (
@@ -197,51 +153,51 @@ export const AppSidebar = () => {
           <Logo />
         </div>
       </SidebarHeader>
-      <SidebarContent className="scrollbar">
+      <SidebarContent className="scrollbar my-4">
         {MenuGroups.map((group) => (
-          <SidebarGroup key={group.slug} className="space-y-1 transition-all duration-200 hover:translate-x-1">
+          <SidebarGroup key={group.slug} className="space-y-1 transition-all duration-200 hover:translate-x-1 cursor-pointer">
             <SidebarGroupContent>
               <Collapsible open={openGroups[group.slug]} onOpenChange={() => toggleGroup(group.slug)}>
                 <SidebarGroupLabel className="mb-2">
                   <CollapsibleTrigger asChild>
                     <div className="w-full flex justify-between transition-colors duration-200 hover:text-primary font-black uppercase">
                       <div className="flex items-center space-x-1">
-                        <span className="transition-transform duration-300 ease-in-out group-hover:rotate-12">
+                        <span>
                           {group.icon}
                         </span>
                         <span>{group.name}</span>
                       </div>
                       <ChevronRight
                         className={cn(
-                          "h-4 w-4 transition-transform duration-300 ease-in-out",
+                          "h-4 w-4",
                           openGroups[group.slug] ? "rotate-90" : "",
                         )}
                       />
                     </div>
                   </CollapsibleTrigger>
                 </SidebarGroupLabel>
-                <SidebarGroupContent className="pl-2 space-y-1">
+                <SidebarGroupContent className="space-y-0.5">
                   <CollapsibleContent className="transition-all duration-300 ease-in-out">
                     {group.links.map((link) => (
                       <Link
-                        key={link.slug}
-                        href={`/${group.slug}/${link.slug}`}
+                      key={link.slug}
+                      href={`/${group.slug}/${link.slug}`}
+                      className={cn(
+                        "flex gap-1 py-1 my-2 mx-2 px-2 items-center font-semibold text-md rounded-sm transition-all duration-200 ease-in-out capitalize",
+                        isLinkActive(group.slug, link.slug)
+                          ? "bg-primary/80 text-primary-foreground scale-[1.02] shadow-sm"
+                          : "hover:bg-muted hover:translate-x-1",
+                      )}
+                    >
+                      <Circle
+                        size={10}
                         className={cn(
-                          "flex gap-1 items-center px-3 py-2 my-2 font-semibold text-md rounded-sm transition-all duration-200 ease-in-out capitalize",
-                          isLinkActive(group.slug, link.slug)
-                            ? "bg-primary/80 text-primary-foreground scale-[1.02] shadow-sm"
-                            : "hover:bg-muted hover:translate-x-1",
+                          "transition-all duration-300",
+                          isLinkActive(group.slug, link.slug) ? "fill-primary-foreground" : "fill-transparent",
                         )}
-                      >
-                        <Circle
-                          size={10}
-                          className={cn(
-                            "transition-all duration-300",
-                            isLinkActive(group.slug, link.slug) ? "fill-primary-foreground" : "fill-transparent",
-                          )}
-                        />
-                        {link.title}
-                      </Link>
+                      />
+                      {link.title}
+                    </Link>
                     ))}
                   </CollapsibleContent>
                 </SidebarGroupContent>
