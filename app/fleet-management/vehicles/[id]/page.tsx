@@ -15,7 +15,7 @@ export default async function CarDetailsPage({ params }: Readonly<{ params: Prom
   }
 
   return (
-    <div className="container py-10">
+    <>
       <div className="mb-6">
         <Button variant="outline" size="sm" asChild>
           <Link href="/fleet-management/vehicles">
@@ -24,9 +24,8 @@ export default async function CarDetailsPage({ params }: Readonly<{ params: Prom
           </Link>
         </Button>
       </div>
-
       <CarDetails car={res.data} />
-    </div>
+    </>
   )
 }
 
