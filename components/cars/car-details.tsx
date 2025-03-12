@@ -22,7 +22,6 @@ export function CarDetails({ car }: Readonly<CarDetailsProps>) {
   const router = useRouter()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
-  const thumbnail = car.media?.find((m) => m.isThumbnail) || car.media?.[0]
 
   const handleDeleteSuccess = () => {
     toast.success("Car deleted successfully")
@@ -61,7 +60,7 @@ export function CarDetails({ car }: Readonly<CarDetailsProps>) {
                   <CardDescription className="mt-2">{car.shortDescription}</CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => router.push(`/cars/${car.id}/edit`)}>
+                  <Button variant="outline" size="sm" onClick={() => router.push(`/fleet-management/vehicles/${car.id}/edit`)}>
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </Button>
