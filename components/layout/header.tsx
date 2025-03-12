@@ -18,7 +18,7 @@ export function Header() {
           <Language className="hidden sm:block" />
           <Currency className="hidden md:block" />
           <Notification />
-          <UserAvatar />
+          <UserAvatar isLoggedInUser/>
         </div>
       </nav>
     </header>
