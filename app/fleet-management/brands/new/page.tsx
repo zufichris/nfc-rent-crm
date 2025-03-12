@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 
 export default function CreateBrandPage() {
     return (
-        <Card className="container py-10">
-            <CardHeader className="mb-8">
+        <Card>
+            <CardHeader>
                 <CardTitle className="text-3xl font-bold tracking-tight">Create Brand</CardTitle>
                 <CardDescription className="text-muted-foreground">
-                    Create a new brand with AI-powered suggestions and multi-language support.
+                    Create new Brand with AI-powered suggestions and multi-language support.
                 </CardDescription>
             </CardHeader>
             <CardContent>
