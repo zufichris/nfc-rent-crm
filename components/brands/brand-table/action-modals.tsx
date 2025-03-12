@@ -46,120 +46,138 @@ function renderBrandStatus(brand?: IBrand) {
 
 function ViewBrandModal({ brand, isOpen, onClose, onSuccess }: ModalProps & { brand?: IBrand }) {
     if (!brand) return null
-
+  
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-md">
-                <DialogHeader
-                    className={cn("p-6 rounded-t-lg flex flex-col items-center gap-4 bg-primary/35 relative overflow-hidden bg-opacity-20")}
-                    style={{
-                        backgroundImage: brand.coverImage ? `url(${brand.coverImage})` : undefined,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                    }}
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader
+            className={cn(
+              "p-6 rounded-t-lg  flex flex-col items-center gap-4 relative",
+              "bg-gradient-to-b from-primary/10 to-background/80 dark:from-primary/5 dark:to-background/95",
+            )}
+            style={{
+              backgroundImage: brand.coverImage ? `url(${brand.coverImage})` : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            {brand.coverImage && (
+              <div className="absolute inset-0 backdrop-blur-sm bg-background/60 dark:bg-background/80 z-0"></div>
+            )}
+  
+            <div className="flex-shrink-0 z-10">
+              <Avatar className="h-24 w-24 border-4 border-background shadow-xl">
+                {brand.logo ? (
+                  <AvatarImage src={brand.logo} alt={brand.name} />
+                ) : (
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {brand.name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </div>
+            <div className="flex-1 text-center z-10">
+              <DialogTitle className="text-2xl font-bold mb-1 text-foreground">{brand.name}</DialogTitle>
+              {brand.website && (
+                <a
+                  href={brand.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-primary flex items-center justify-center gap-1"
                 >
-                    {brand.coverImage && <div className="absolute inset-0 bg-black/40 z-0"></div>}
-
-                    <div className="flex-shrink-0 z-10">
-                        <Avatar className="h-24 w-24 border-2 shadow-md">
-                            {brand.logo ? (
-                                <AvatarImage src={brand.logo} alt={brand.name} />
-                            ) : (
-                                <AvatarFallback className="text-xl">{brand.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                            )}
-                        </Avatar>
-                    </div>
-                    <div className="flex-1 text-center z-10">
-                        <DialogTitle className="text-xl mb-1 ">{brand.name}</DialogTitle>
-                        {brand.website && (
-                            <a
-                                href={brand.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm /90  flex items-center justify-center gap-1"
-                            >
-                                <Globe className="h-3 w-3" />
-                                {brand.website.replace(/^https?:\/\//, "")}
-                            </a>
-                        )}
-                        <div className="mt-2">{renderBrandStatus(brand)}</div>
-                    </div>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                        <Label>Code</Label>
-                        <div className="text-sm font-medium">{brand.code}</div>
-                    </div>
-
-                    {brand.shortDescription && (
-                        <div className="grid gap-2">
-                            <Label>Short Description</Label>
-                            <div className="text-sm text-muted-foreground">{brand.shortDescription}</div>
-                        </div>
-                    )}
-
-                    {brand.description && (
-                        <div className="grid gap-2">
-                            <Label>Description</Label>
-                            <div className="text-sm text-muted-foreground border rounded-md p-3 bg-muted/30">{brand.description}</div>
-                        </div>
-                    )}
-
-                    {brand.metadata ? <div className="grid gap-2">
-                        <Label>Metadata</Label>
-                        <div className="text-sm">
-                            <div>
-                                <strong>Title:</strong> {brand.metadata.title}
-                            </div>
-                            <div>
-                                <strong>Description:</strong> {brand.metadata.description}
-                            </div>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                                <strong className="w-full">Tags:</strong>
-                                {brand.metadata.tags.map((tag, index) => (
-                                    <Badge key={index + tag} variant="secondary" className="flex items-center gap-1">
-                                        <Tag className="h-3 w-3" />
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-                    </div> : null}
-
-                    {brand.models && brand.models.length > 0 && (
-                        <div className="grid gap-2">
-                            <Label>Models</Label>
-                            <div className="flex flex-wrap gap-2">
-                                {brand.models.map((model, index) => (
-                                    <Badge key={index + model} variant="outline">
-                                        {model}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label>Created At</Label
-                            >
-                            <div className="text-sm">{format(new Date(brand.createdAt), "PPP")}</div>
-                        </div>
-                        {brand.updatedAt && (
-                            <div>
-                                <Label>Updated At</Label>
-                                <div className="text-sm">{format(new Date(brand.updatedAt), "PPP")}</div>
-                            </div>
-                        )}
-                    </div>
+                  <Globe className="h-3 w-3" />
+                  {brand.website.replace(/^https?:\/\//, "")}
+                </a>
+              )}
+              <div className="mt-3">{renderBrandStatus(brand)}</div>
+            </div>
+          </DialogHeader>
+  
+          <div className="overflow-y-auto scrollbar px-6 py-5 space-y-6 flex-1">
+            <div className="grid gap-2">
+              <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Code</Label>
+              <div className="text-sm font-mono bg-accent/10 p-2 rounded-md border">{brand.code}</div>
+            </div>
+  
+            {brand.shortDescription && (
+              <div className="grid gap-2">
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">
+                  Short Description
+                </Label>
+                <div className="text-sm text-muted-foreground">{brand.shortDescription}</div>
+              </div>
+            )}
+  
+            {brand.description && (
+              <div className="grid gap-2">
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Description</Label>
+                <div className="text-sm text-muted-foreground bg-accent/10 p-3 rounded-md border">
+                  {brand.description}
                 </div>
-                <DialogFooter>
-                    <Button onClick={onClose}>Close</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+              </div>
+            )}
+  
+            {brand.metadata && (
+              <div className="grid gap-3">
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Metadata</Label>
+                <div className="grid gap-3 bg-accent/10 p-3 rounded-md border">
+                  <div className="grid gap-1">
+                    <span className="text-xs text-muted-foreground font-medium">Title</span>
+                    <div className="text-sm font-medium">{brand.metadata.title}</div>
+                  </div>
+                  <div className="grid gap-1">
+                    <span className="text-xs text-muted-foreground font-medium">Description</span>
+                    <div className="text-sm">{brand.metadata.description}</div>
+                  </div>
+                  <div className="grid gap-1">
+                    <span className="text-xs text-muted-foreground font-medium">Tags</span>
+                    <div className="flex flex-wrap gap-2">
+                      {brand.metadata.tags.map((tag, index) => (
+                        <Badge key={index + tag} variant="secondary" className="flex items-center gap-1">
+                          <Tag className="h-3 w-3" />
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+  
+            {brand.models && brand.models.length > 0 && (
+              <div className="grid gap-2">
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Models</Label>
+                <div className="flex flex-wrap gap-2 bg-accent/10 p-3 rounded-md border">
+                  {brand.models.map((model, index) => (
+                    <Badge key={index + model} variant="outline" className="bg-background/80">
+                      {model}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+  
+            <div className="grid grid-cols-2 gap-6 text-sm text-muted-foreground">
+              <div>
+                <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Created</Label>
+                <div className="mt-2">{format(new Date(brand.createdAt), "PPP")}</div>
+              </div>
+              {brand.updatedAt && (
+                <div>
+                  <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Updated</Label>
+                  <div className="mt-2">{format(new Date(brand.updatedAt), "PPP")}</div>
+                </div>
+              )}
+            </div>
+          </div>
+  
+          <DialogFooter className="px-6 py-4 border-t">
+            <Button onClick={onClose}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     )
-}
+  }
 
 function DeleteBrandModal({ brand, isOpen, onClose, onSuccess }: ModalProps & { brand?: IBrand }) {
     const [isDeleting, setIsDeleting] = useState(false)
