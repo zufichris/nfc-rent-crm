@@ -5,16 +5,16 @@ export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname
     const isPublicPath = path === "/signin"
 
-    const token = request.cookies.get("access_token")
-    const isAuthenticated = token?.value !== undefined
+    // const token = request.cookies.get("access_token")
+    // const isAuthenticated = token?.value !== undefined
 
-    if (!isPublicPath && !isAuthenticated) {
-        return NextResponse.redirect(new URL("/signin", request.url))
-    }
+    // if (!isPublicPath && !isAuthenticated) {
+    //     return NextResponse.redirect(new URL("/signin", request.url))
+    // }
 
-    if (isPublicPath && isAuthenticated) {
-        return NextResponse.redirect(new URL("/", request.url))
-    }
+    // if (isPublicPath && isAuthenticated) {
+    //     return NextResponse.redirect(new URL("/", request.url))
+    // }
 
     return NextResponse.next()
 }
