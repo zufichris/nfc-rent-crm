@@ -128,22 +128,7 @@ export default function BrandForm({ brand }: Readonly<BrandFormProps>) {
     })
     return () => subscription.unsubscribe()
   }, [form, currentLocale])
-
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name?.startsWith("translations")) {
-        const translations = value.translations
-        const currentTranslation = translations?.find((t) => t?.locale === currentLocale)
-        if (currentTranslation) {
-          form.setValue("name", currentTranslation.name || "", { shouldValidate: false })
-          form.setValue("shortDescription", currentTranslation.shortDescription || "", { shouldValidate: false })
-          form.setValue("description", currentTranslation.description || "", { shouldValidate: false })
-        }
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form, currentLocale])
-
+  
   async function onSubmit(data: BrandFormValues) {
     setIsSubmitting(true)
     try {
