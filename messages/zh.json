@@ -3,12 +3,12 @@
         "Layout": {
             "Sidebar": {
                 "Groups": {
-                    "dashboard": "仪表板",
+                    "dashboard": "仪表盘",
                     "fleet-management": "车队管理",
                     "bookings": "预订",
-                    "customers": "客户",
-                    "payments": "付款",
-                    "users-management": "用户管理",
+                    "customers": "顾客",
+                    "employees": "员工",
+                    "payments": "支付",
                     "settings": "设置"
                 },
                 "Links": {
@@ -17,13 +17,12 @@
                     "vehicles": "车辆",
                     "brands": "品牌",
                     "booking-list": "预订列表",
-                    "all-customers": "所有客户",
-                    "blacklist": "黑名单",
-                    "transactions": "交易",
+                    "transactions": "交易记录",
                     "refunds": "退款",
                     "invoices": "发票",
-                    "users": "用户",
-                    "roles-permissions": "角色和权限",
+                    "customers": "所有顾客",
+                    "employees": "员工",
+                    "roles": "角色 & 权限",
                     "general-settings": "通用设置",
                     "pricing-rules": "定价规则",
                     "notifications": "通知"

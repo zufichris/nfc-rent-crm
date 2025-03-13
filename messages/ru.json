@@ -3,27 +3,26 @@
         "Layout": {
             "Sidebar": {
                 "Groups": {
-                    "dashboard": "Панель управления",
+                    "dashboard": "Главная",
                     "fleet-management": "Управление автопарком",
                     "bookings": "Бронирования",
                     "customers": "Клиенты",
+                    "employees": "Сотрудники",
                     "payments": "Платежи",
-                    "users-management": "Управление пользователями",
                     "settings": "Настройки"
                 },
                 "Links": {
                     "overview": "Обзор",
                     "analytics": "Аналитика",
-                    "vehicles": "Транспорт",
+                    "vehicles": "Транспортные средства",
                     "brands": "Бренды",
                     "booking-list": "Список бронирований",
-                    "all-customers": "Все клиенты",
-                    "blacklist": "Черный список",
                     "transactions": "Транзакции",
                     "refunds": "Возвраты",
                     "invoices": "Счета",
-                    "users": "Пользователи",
-                    "roles-permissions": "Роли и разрешения",
+                    "customers": "Все клиенты",
+                    "employees": "Сотрудники",
+                    "roles": "Роли и разрешения",
                     "general-settings": "Общие настройки",
                     "pricing-rules": "Правила ценообразования",
                     "notifications": "Уведомления"

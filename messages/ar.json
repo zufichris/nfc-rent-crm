@@ -3,12 +3,12 @@
         "Layout": {
             "Sidebar": {
                 "Groups": {
-                    "dashboard": "لوحة التحكم",
+                    "dashboard": "لوحة القيادة",
                     "fleet-management": "إدارة الأسطول",
                     "bookings": "الحجوزات",
                     "customers": "العملاء",
+                    "employees": "الموظفين",
                     "payments": "المدفوعات",
-                    "users-management": "إدارة المستخدمين",
                     "settings": "الإعدادات"
                 },
                 "Links": {
@@ -17,13 +17,12 @@
                     "vehicles": "المركبات",
                     "brands": "العلامات التجارية",
                     "booking-list": "قائمة الحجوزات",
-                    "all-customers": "جميع العملاء",
-                    "blacklist": "القائمة السوداء",
                     "transactions": "المعاملات",
                     "refunds": "المبالغ المستردة",
                     "invoices": "الفواتير",
-                    "users": "المستخدمون",
-                    "roles-permissions": "الأدوار والصلاحيات",
+                    "customers": "جميع العملاء",
+                    "employees": "الموظفين",
+                    "roles": "الأدوار والصلاحيات",
                     "general-settings": "الإعدادات العامة",
                     "pricing-rules": "قواعد التسعير",
                     "notifications": "الإشعارات"

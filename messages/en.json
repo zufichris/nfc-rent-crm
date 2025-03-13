@@ -7,8 +7,8 @@
                     "fleet-management": "Fleet Management",
                     "bookings": "Bookings",
                     "customers": "Customers",
+                    "employees": "Employees",
                     "payments": "Payments",
-                    "users-management": "Users Management",
                     "settings": "Settings"
                 },
                 "Links": {
@@ -17,13 +17,12 @@
                     "vehicles": "Vehicles",
                     "brands": "Brands",
                     "booking-list": "Booking List",
-                    "all-customers": "All Customers",
-                    "blacklist": "Blacklist",
                     "transactions": "Transactions",
                     "refunds": "Refunds",
                     "invoices": "Invoices",
-                    "users": "Users",
-                    "roles-permissions": "Roles & Permissions",
+                    "customers": "All Customers",
+                    "employees": "Employees",
+                    "roles": "Roles & Permissions",
                     "general-settings": "General Settings",
                     "pricing-rules": "Pricing Rules",
                     "notifications": "Notifications"

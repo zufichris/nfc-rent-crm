@@ -4,12 +4,12 @@
             "Sidebar": {
                 "Groups": {
                     "dashboard": "Tablero",
-                    "fleet-management": "Gestión de Flotas",
+                    "fleet-management": "Gestión de Flota",
                     "bookings": "Reservas",
                     "customers": "Clientes",
+                    "employees": "Empleados",
                     "payments": "Pagos",
-                    "users-management": "Gestión de Usuarios",
-                    "settings": "Configuraciones"
+                    "settings": "Ajustes"
                 },
                 "Links": {
                     "overview": "Resumen",
@@ -17,14 +17,13 @@
                     "vehicles": "Vehículos",
                     "brands": "Marcas",
                     "booking-list": "Lista de Reservas",
-                    "all-customers": "Todos los Clientes",
-                    "blacklist": "Lista Negra",
                     "transactions": "Transacciones",
                     "refunds": "Reembolsos",
                     "invoices": "Facturas",
-                    "users": "Usuarios",
-                    "roles-permissions": "Roles y Permisos",
-                    "general-settings": "Configuraciones Generales",
+                    "customers": "Todos los Clientes",
+                    "employees": "Empleados",
+                    "roles": "Roles y Permisos",
+                    "general-settings": "Configuración General",
                     "pricing-rules": "Reglas de Precios",
                     "notifications": "Notificaciones"
                 }

@@ -7,8 +7,8 @@
                     "fleet-management": "Gestione Flotta",
                     "bookings": "Prenotazioni",
                     "customers": "Clienti",
+                    "employees": "Dipendenti",
                     "payments": "Pagamenti",
-                    "users-management": "Gestione Utenti",
                     "settings": "Impostazioni"
                 },
                 "Links": {
@@ -17,13 +17,12 @@
                     "vehicles": "Veicoli",
                     "brands": "Marche",
                     "booking-list": "Lista Prenotazioni",
-                    "all-customers": "Tutti i Clienti",
-                    "blacklist": "Lista Nera",
                     "transactions": "Transazioni",
                     "refunds": "Rimborsi",
                     "invoices": "Fatture",
-                    "users": "Utenti",
-                    "roles-permissions": "Ruoli e Permessi",
+                    "customers": "Tutti i Clienti",
+                    "employees": "Dipendenti",
+                    "roles": "Ruoli e Permessi",
                     "general-settings": "Impostazioni Generali",
                     "pricing-rules": "Regole di Prezzo",
                     "notifications": "Notifiche"
