@@ -1,5 +1,34 @@
 {
-    "Home": {
-        "welcome": "Welcome to Back"
+    "Components": {
+        "Layout": {
+            "Sidebar": {
+                "Groups": {
+                    "dashboard": "لوحة التحكم",
+                    "fleet-management": "إدارة الأسطول",
+                    "bookings": "الحجوزات",
+                    "customers": "العملاء",
+                    "payments": "المدفوعات",
+                    "users-management": "إدارة المستخدمين",
+                    "settings": "الإعدادات"
+                },
+                "Links": {
+                    "overview": "نظرة عامة",
+                    "analytics": "تحليلات",
+                    "vehicles": "المركبات",
+                    "brands": "العلامات التجارية",
+                    "booking-list": "قائمة الحجوزات",
+                    "all-customers": "جميع العملاء",
+                    "blacklist": "القائمة السوداء",
+                    "transactions": "المعاملات",
+                    "refunds": "المبالغ المستردة",
+                    "invoices": "الفواتير",
+                    "users": "المستخدمون",
+                    "roles-permissions": "الأدوار والصلاحيات",
+                    "general-settings": "الإعدادات العامة",
+                    "pricing-rules": "قواعد التسعير",
+                    "notifications": "الإشعارات"
+                }
+            }
+        }
     }
 }

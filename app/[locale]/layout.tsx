@@ -29,10 +29,12 @@ export default async function RootLayout({
   if (!locale || !routing.locales.includes(locale)) {
     notFound()
   }
+  const isRtl=locale==="ar"
+
   const messages = await getMessages();
   const res = await getLoggedInUser()
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className={`${inter.className} bg-foreground/10 dark:bg-background/55 bg-opacity-50 backdrop-blur-md`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>

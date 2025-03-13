@@ -38,6 +38,7 @@ import { Currency } from "./currency";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "../user/user-avatar";
+import { useTranslations } from "next-intl";
 
 type LinkItem = {
   title: string;
@@ -51,79 +52,81 @@ type Group = {
   links: LinkItem[];
 };
 
-export const MenuGroups: Group[] = [
-  {
-    name: "Dashboard",
-    icon: <LayoutDashboard className="size-4 mr-2" />,
-    links: [
-      { title: "Overview" },
-      { title: "Analytics" },
-    ],
-  },
-  {
-    name: "Fleet Management",
-    icon: <Car className="size-4 mr-2" />,
-    links: [
-      { title: "Vehicles" },
-      { title: "Brands" },
-    ],
-  },
-  {
-    name: "Bookings",
-    icon: <CalendarCheck className="size-4 mr-2" />,
-    links: [
-      { title: "Booking List" },
-    ],
-  },
-  {
-    name: "Customers",
-    icon: <Users className="size-4 mr-2" />,
-    links: [
-      { title: "All Customers" },
-      { title: "Blacklist" },
-    ],
-  },
-  {
-    name: "Payments",
-    icon: <CreditCard className="size-4 mr-2" />,
-    links: [
-      { title: "Transactions" },
-      { title: "Refunds" },
-      { title: "Invoices" },
-    ],
-  },
-  {
-    name: "Users Management",
-    icon: <Shield className="size-4 mr-2" />,
-    links: [
-      { title: "Users" },
-      { title: "Roles & Permissions" },
-    ],
-  },
-  {
-    name: "Settings",
-    icon: <Settings className="size-4 mr-2" />,
-    links: [
-      { title: "General Settings" },
-      { title: "Pricing Rules" },
-      { title: "Notifications" },
-    ],
-  },
-].map(g => ({
-  name: g.name,
-  slug: g.name.toLowerCase().split(" ").join("-"),
-  icon: g.icon,
-  links: g.links.map(l => ({
-    title: l.title,
-    slug: l.title.toLowerCase().split(" ").join("")
-  }))
-}))
+
+
 
 
 
 export const AppSidebar = () => {
   const { openMobile } = useSidebar()
   const pathname = usePathname()
+  const t = useTranslations("Components.Layout.Sidebar")
+  const MenuGroups: Group[] = [
+    {
+      name: t("Groups.dashboard"),
+      slug: "dashboard",
+      icon: <LayoutDashboard className="size-4 mr-2" />,
+      links: [
+        { title: t("Links.overview"), slug: "overview" },
+        { title: t("Links.analytics"), slug: "analytics" }
+      ],
+    },
+    {
+      name: t("Groups.fleet-management"),
+      slug: "fleet-management",
+      icon: <Car className="size-4 mr-2" />,
+      links: [
+        { title: t("Links.vehicles"), slug: "vehicles" },
+        { title: t("Links.brands"), slug: "brands" },
+      ],
+    },
+    {
+      name: t("Groups.bookings"),
+      slug: "bookings",
+      icon: <CalendarCheck className="size-4 mr-2" />,
+      links: [{ title: t("Links.booking-list"), slug: "booking-list" }],
+    },
+    {
+      name: t("Groups.customers"),
+      slug: "customers",
+      icon: <Users className="size-4 mr-2" />,
+      links: [
+        { title: t("Links.all-customers"), slug: "all-customers" },
+        { title: t("Links.blacklist"), slug: "blacklist" },
+      ],
+    },
+    {
+      name: t("Groups.payments"),
+      slug: "payments",
+      icon: <CreditCard className="size-4 mr-2" />,
+      links: [
+        { title: t("Links.transactions"), slug: "transactions" },
+        { title: t("Links.refunds"), slug: "refunds" },
+        { title: t("Links.invoices"), slug: "invoices" },
+      ],
+    },
+    {
+      name: t("Groups.users-management"),
+      slug: "users-management",
+      icon: <Shield className="size-4 mr-2" />,
+      links: [
+        { title: t("Links.users"), slug: "users" },
+        { title: t("Links.roles-permissions"), slug: "roles-permissions" },
+      ],
+    },
+    {
+      name: t("Groups.settings"),
+      slug: "settings",
+      icon: <Settings className="size-4 mr-2" />,
+      links: [
+        { title: t("Links.general-settings"), slug: "general-settings" },
+        { title: t("Links.pricing-rules"), slug: "pricing-rules" },
+        { title: t("Links.notifications"), slug: "notifications" },
+      ],
+    },
+  ];
+
+
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     const initialState: Record<string, boolean> = {}
 
@@ -180,24 +183,24 @@ export const AppSidebar = () => {
                   <CollapsibleContent className="transition-all duration-300 ease-in-out">
                     {group.links.map((link) => (
                       <Link
-                      key={link.slug}
-                      href={`/${group.slug}/${link.slug}`}
-                      className={cn(
-                        "flex gap-1 py-1 my-2 mx-2 px-2 items-center font-semibold text-md rounded-sm transition-all duration-200 ease-in-out capitalize",
-                        isLinkActive(group.slug, link.slug)
-                          ? "bg-primary/80 text-primary-foreground scale-[1.02] shadow-sm"
-                          : "hover:bg-muted hover:translate-x-1",
-                      )}
-                    >
-                      <Circle
-                        size={10}
+                        key={link.slug}
+                        href={`/${group.slug}/${link.slug}`}
                         className={cn(
-                          "transition-all duration-300",
-                          isLinkActive(group.slug, link.slug) ? "fill-primary-foreground" : "fill-transparent",
+                          "flex gap-1 py-1 my-2 mx-2 px-2 items-center font-semibold text-md rounded-sm transition-all duration-200 ease-in-out capitalize",
+                          isLinkActive(group.slug, link.slug)
+                            ? "bg-primary/80 text-primary-foreground scale-[1.02] shadow-sm"
+                            : "hover:bg-muted hover:translate-x-1",
                         )}
-                      />
-                      {link.title}
-                    </Link>
+                      >
+                        <Circle
+                          size={10}
+                          className={cn(
+                            "transition-all duration-300",
+                            isLinkActive(group.slug, link.slug) ? "fill-primary-foreground" : "fill-transparent",
+                          )}
+                        />
+                        {link.title}
+                      </Link>
                     ))}
                   </CollapsibleContent>
                 </SidebarGroupContent>
@@ -231,3 +234,4 @@ export const AppSidebar = () => {
     </Sidebar>
   )
 }
+

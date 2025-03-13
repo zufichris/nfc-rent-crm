@@ -1,5 +1,34 @@
 {
-    "Home": {
-        "welcome": "Welcome to Back"
+    "Components": {
+        "Layout": {
+            "Sidebar": {
+                "Groups": {
+                    "dashboard": "Панель управления",
+                    "fleet-management": "Управление автопарком",
+                    "bookings": "Бронирования",
+                    "customers": "Клиенты",
+                    "payments": "Платежи",
+                    "users-management": "Управление пользователями",
+                    "settings": "Настройки"
+                },
+                "Links": {
+                    "overview": "Обзор",
+                    "analytics": "Аналитика",
+                    "vehicles": "Транспорт",
+                    "brands": "Бренды",
+                    "booking-list": "Список бронирований",
+                    "all-customers": "Все клиенты",
+                    "blacklist": "Черный список",
+                    "transactions": "Транзакции",
+                    "refunds": "Возвраты",
+                    "invoices": "Счета",
+                    "users": "Пользователи",
+                    "roles-permissions": "Роли и разрешения",
+                    "general-settings": "Общие настройки",
+                    "pricing-rules": "Правила ценообразования",
+                    "notifications": "Уведомления"
+                }
+            }
+        }
     }
 }

@@ -1,8 +1,10 @@
 "use client"
+
+import { Badge } from "@/components/ui/badge"
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, UseFormReturn, } from "react-hook-form"
+import { useForm, type UseFormReturn } from "react-hook-form"
 import { z } from "zod"
 import { ChevronLeft, ChevronRight, Loader2, Sparkles, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,20 +14,21 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
-import { generateBrandSuggestions } from "@/lib/actions/ai"
-import { translateContent } from "@/lib/actions/translate"
 import { TagInput } from "@/components/misc/tag"
 import { toast } from "sonner"
 import { Image, ImageUpload } from "@/components/misc/image"
 import { Progress } from "@/components/ui/progress"
-import { Label } from "../ui/label"
+import { Label } from "@/components/ui/label"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { generateBrandSuggestions } from "@/lib/actions/ai"
+import { translateContent } from "@/lib/actions/translate"
+import { Languages, type Locale } from "@/types/language"
+import type { IBrand } from "@/types/brand"
+import { createBrand } from "@/lib/actions/brands"
 import { generateSlug } from "@/utils/functions"
 import { cn } from "@/lib/utils"
 import { getVariant } from "../theme/variants"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { createBrand } from "@/lib/actions/brands"
-import { Languages, Locale } from "@/types/language"
-import { IBrand } from "@/types/brand"
+import { useLocale } from "next-intl"
 
 const brandFormSchema = z.object({
   name: z.string().min(2, { message: "Brand name must be at least 2 characters." }),
@@ -43,18 +46,20 @@ const brandFormSchema = z.object({
   }),
   models: z.array(z.string()).optional(),
   isActive: z.boolean().default(true),
-  translation: z.record(
-    z.enum(["en", "fr", "zh", "ru", "it", "ar"]),
-    z.object({
-      name: z.string(),
-      description: z.string(),
-      shortDescription: z.string(),
-    })
-  ),
+  translations: z
+    .array(
+      z.object({
+        name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+        shortDescription: z.string().optional(),
+        description: z.string().optional(),
+        locale: z.enum(["en", "es", "fr", "ar", "it", "ru", "zh"]),
+      }),
+    )
+    .min(1, { message: "At least one translation is required." }),
 })
 
 type BrandFormValues = z.infer<typeof brandFormSchema>
-type FormType = UseFormReturn<BrandFormValues>;
+type FormType = UseFormReturn<BrandFormValues>
 
 const steps = [
   { id: "basic-info", title: "Basic Information" },
@@ -65,13 +70,13 @@ const steps = [
   { id: "review", title: "Review & Submit" },
 ]
 
-
-
 interface BrandFormProps {
   brand?: IBrand
 }
+
 export default function BrandForm({ brand }: Readonly<BrandFormProps>) {
   const router = useRouter()
+  const currentLocale = useLocale() as Locale
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [isTranslating, setIsTranslating] = useState(false)
@@ -83,10 +88,10 @@ export default function BrandForm({ brand }: Readonly<BrandFormProps>) {
       code: brand?.code ?? "",
       website: brand?.website ?? "",
       slug: brand?.slug ?? "",
-      shortDescription: brand?.shortDescription ?? "",
-      description: brand?.description ?? "",
       logo: brand?.logo ?? "",
       coverImage: brand?.coverImage ?? "",
+      shortDescription: brand?.shortDescription ?? "",
+      description: brand?.description ?? "",
       metadata: {
         title: brand?.metadata?.title ?? "",
         description: brand?.metadata?.description ?? "",
@@ -94,30 +99,50 @@ export default function BrandForm({ brand }: Readonly<BrandFormProps>) {
       },
       models: brand?.models ?? [],
       isActive: brand?.isActive ?? true,
-      translation: {
-        en: { name: brand?.translation?.en?.name ?? "", description: brand?.translation?.en?.description ?? "", shortDescription: brand?.translation?.en?.shortDescription ?? "" },
-        fr: { name: brand?.translation?.fr?.name ?? "", description: brand?.translation?.fr?.description ?? "", shortDescription: brand?.translation?.fr?.shortDescription ?? "" },
-        zh: { name: brand?.translation?.zh?.name ?? "", description: brand?.translation?.zh?.description ?? "", shortDescription: brand?.translation?.zh?.shortDescription ?? "" },
-        ru: { name: brand?.translation?.ru?.name ?? "", description: brand?.translation?.ru?.description ?? "", shortDescription: brand?.translation?.ru?.shortDescription ?? "" },
-        it: { name: brand?.translation?.it?.name ?? "", description: brand?.translation?.it?.description ?? "", shortDescription: brand?.translation?.it?.shortDescription ?? "" },
-        ar: { name: brand?.translation?.ar?.name ?? "", description: brand?.translation?.ar?.description ?? "", shortDescription: brand?.translation?.ar?.shortDescription ?? "" },
-      },
+      translations: Languages.map((lang) =>lang.code===currentLocale?({
+        locale: lang.code,
+        name: brand?.name ?? "",
+        shortDescription:brand?.shortDescription ?? "",
+        description:brand?.description ?? "",
+      }): ({
+        locale: lang.code,
+        name: "",
+        shortDescription:"",
+        description:"",
+      })),
     },
   })
-
 
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === "name" || name === "shortDescription" || name === "description") {
-        form.setValue("translation.en", {
-          name: form.getValues("name") || "",
-          shortDescription: form.getValues("shortDescription") || "",
-          description: form.getValues("description") || "",
-        })
+        const translations = form.getValues("translations") || []
+        const currentTranslation = translations.find((t) => t.locale === currentLocale)
+        if (currentTranslation) {
+          currentTranslation.name = form.getValues("name") || ""
+          currentTranslation.shortDescription = form.getValues("shortDescription") || ""
+          currentTranslation.description = form.getValues("description") || ""
+          form.setValue("translations", translations, { shouldValidate: false })
+        }
       }
     })
     return () => subscription.unsubscribe()
-  }, [form])
+  }, [form, currentLocale])
+
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name?.startsWith("translations")) {
+        const translations = value.translations
+        const currentTranslation = translations?.find((t) => t?.locale === currentLocale)
+        if (currentTranslation) {
+          form.setValue("name", currentTranslation.name || "", { shouldValidate: false })
+          form.setValue("shortDescription", currentTranslation.shortDescription || "", { shouldValidate: false })
+          form.setValue("description", currentTranslation.description || "", { shouldValidate: false })
+        }
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form, currentLocale])
 
   async function onSubmit(data: BrandFormValues) {
     setIsSubmitting(true)
@@ -133,28 +158,27 @@ export default function BrandForm({ brand }: Readonly<BrandFormProps>) {
     }
   }
 
-  const validateStep = useCallback(async (step: number): Promise<boolean> => {
-    switch (step) {
-      case 0:
-        return form.trigger(["name", "code", "website"]).then((isValid) =>
-          isValid && !!form.getValues("name") && !!form.getValues("code") && !!form.getValues("website")
-        )
-      case 1:
-        return form.trigger(["shortDescription"]).then((isValid) =>
-          isValid && !!form.getValues("shortDescription")
-        )
-      case 2:
-        return form.trigger(["logo"]).then((isValid) =>
-          isValid && !!form.getValues("logo")
-        )
-      case 3:
-        return form.trigger(["metadata.title", "metadata.description"]).then((isValid) => isValid)
-      case 4:
-        return !!form.getValues("translation.en")?.name
-      default:
-        return true
-    }
-  }, [form])
+  const validateStep = useCallback(
+    async (step: number): Promise<boolean> => {
+      switch (step) {
+        case 0:
+          return form
+            .trigger(["name", "code", "website"])
+            .then((isValid) => isValid && !!form.getValues("name") && !!form.getValues("code") && !!form.getValues("website"))
+        case 1:
+          return form.trigger(["shortDescription"]).then((isValid) => isValid && !!form.getValues("shortDescription"))
+        case 2:
+          return form.trigger(["logo"]).then((isValid) => isValid && !!form.getValues("logo"))
+        case 3:
+          return form.trigger(["metadata.title", "metadata.description"]).then((isValid) => isValid)
+        case 4:
+          return form.trigger(["translations"]).then((isValid) => isValid && !!form.getValues("translations")?.[0]?.name)
+        default:
+          return true
+      }
+    },
+    [form],
+  )
 
   const proceedToNextStep = () => {
     setCurrentStep((prev) => prev + 1)
@@ -162,11 +186,7 @@ export default function BrandForm({ brand }: Readonly<BrandFormProps>) {
   }
 
   const handleValidationError = () => {
-    if (currentStep === 4) {
-      toast.error("English translation name is required")
-    } else {
-      toast.error("Please complete the required fields before proceeding")
-    }
+    toast.error("Please complete the required fields before proceeding")
   }
 
   const nextStep = useCallback(() => {
@@ -186,20 +206,33 @@ export default function BrandForm({ brand }: Readonly<BrandFormProps>) {
 
   function renderCurrentStep() {
     switch (currentStep) {
-      case 0: return <BasicDetails form={form} key={currentStep} />
-      case 1: return <Description form={form} key={currentStep} />
-      case 2: return <Media form={form} key={currentStep} />
-      case 3: return <Metadata form={form} key={currentStep} />
-      case 4: return <Translation form={form} isTranslating={isTranslating} setIsTranslating={setIsTranslating} key={currentStep} />
-      case 4: return <Review form={form} brand={brand} key={currentStep} />
+      case 0:
+        return <BasicDetails form={form} key={currentStep} />
+      case 1:
+        return <Description form={form} currentLocale={currentLocale} key={currentStep} />
+      case 2:
+        return <Media form={form} key={currentStep} />
+      case 3:
+        return <Metadata form={form} key={currentStep} />
+      case 4:
+        return (
+          <Translation
+            form={form}
+            isTranslating={isTranslating}
+            setIsTranslating={setIsTranslating}
+            currentLocale={currentLocale}
+            key={currentStep}
+          />
+        )
+      case 5:
+        return <Review form={form} brand={brand} currentLocale={currentLocale} key={currentStep} />
       default:
         return null
     }
   }
 
-
   return (
-    <div className="">
+    <div className="max-w-4xl mx-auto py-8">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
           <div className="space-y-6">
@@ -369,7 +402,7 @@ function BasicDetails({ form }: Readonly<{ form: FormType }>) {
   )
 }
 
-function Description({ form }: Readonly<{ form: FormType }>) {
+function Description({ form, currentLocale }: Readonly<{ form: FormType; currentLocale: Locale }>) {
   const [isGenerating, setIsGenerating] = useState(false)
 
   async function generateSuggestions() {
@@ -385,15 +418,19 @@ function Description({ form }: Readonly<{ form: FormType }>) {
       form.setValue("description", suggestions.description)
       form.setValue("metadata.description", suggestions.metaDescription)
       form.setValue("metadata.tags", suggestions.tags)
-      const currentTranslations = form.getValues("translation") || {}
-      form.setValue("translation", {
-        ...currentTranslations,
-        en: {
-          name: brandName,
-          description: suggestions.description,
-          shortDescription: suggestions.shortDescription,
-        },
-      })
+      const translations = form.getValues("translations") || []
+      const currentTranslationIndex = translations.findIndex((t) => t.locale === currentLocale)
+      if (currentTranslationIndex !== -1) {
+        translations[currentTranslationIndex].name = brandName
+        translations[currentTranslationIndex].shortDescription = suggestions.shortDescription
+        translations[currentTranslationIndex].description = suggestions.description
+        form.setValue("translations", translations)
+      } else {
+        form.setValue("translations", [
+          ...translations,
+          { name: brandName, shortDescription: suggestions.shortDescription, description: suggestions.description, locale: currentLocale },
+        ])
+      }
       toast.success("AI Suggestions Generated")
     } catch (error) {
       console.error("Error generating suggestions:", error)
@@ -617,91 +654,68 @@ function Metadata({ form }: Readonly<{ form: FormType }>) {
   )
 }
 
-function TranslationStatusIndicator({ form }: Readonly<{ form: FormType }>) {
-  const translations = form.getValues("translation") ?? {}
-  const totalLanguages = Languages.length - 1
-  const completedLanguages = Object.entries(translations).filter(
-    ([lang, content]: [string, any]) => lang !== "en" && content?.name && content?.shortDescription
-  ).length
-  const percentage = totalLanguages > 0 ? Math.round((completedLanguages / totalLanguages) * 100) : 100
+function Translation({
+  form,
+  isTranslating,
+  setIsTranslating,
+  currentLocale,
+}: Readonly<{ form: FormType; isTranslating: boolean; setIsTranslating: (value: boolean) => void; currentLocale: Locale }>) {
+  const [activeLocale, setActiveLocale] = useState<Locale>(Languages.find((lang) => lang.code !== currentLocale)?.code || "fr")
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <span className="text-sm font-medium">Translation Progress</span>
-        <span className="text-sm">{completedLanguages} of {totalLanguages} languages</span>
-      </div>
-      <div className="relative">
-        <Progress value={percentage} className="h-2" />
-        <div className="absolute top-3 w-full flex justify-between text-xs text-muted-foreground">
-          {Languages.filter((lang) => lang.code !== "en").map(({ code }, index) => {
-            const position = (index / (totalLanguages - 1)) * 100
-            const hasTranslation = translations[code]?.name && translations[code]?.shortDescription
-            return (
-              <div
-                key={code}
-                className="absolute flex flex-col items-center"
-                style={{ left: `${position}%`, transform: "translateX(-50%)" }}
-              >
-                <div className={`w-2 h-2 rounded-full ${hasTranslation ? "bg-primary" : "bg-muted-foreground/30"}`} />
-                <span className="mt-1 whitespace-nowrap">{code}</span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  )
-}
+  const translations = form.getValues("translations") || []
+  const mainIndex = translations.findIndex((t) => t.locale === currentLocale)
 
-function Translation({ form, isTranslating, setIsTranslating }: Readonly<{ form: FormType; isTranslating: boolean; setIsTranslating: (value: boolean) => void }>) {
-  const [activeLocale, setActiveLocale] = useState<Locale>(Languages.find((lang) => lang.code !== "en")?.code ?? "fr")
-
-  function syncWithMainContent() {
-    const mainName = form.getValues("name")
-    const mainDescription = form.getValues("description") ?? ""
-    const mainShortDescription = form.getValues("shortDescription") ?? ""
-    const currentTranslations = form.getValues("translation") ?? {}
-    form.setValue("translation", {
-      ...currentTranslations,
-      [activeLocale]: { name: mainName, description: mainDescription, shortDescription: mainShortDescription },
-    })
+  async function syncWithMainContent() {
+    const mainTranslation = translations[mainIndex]
+    if (!mainTranslation) return
+    const currentTranslations = form.getValues("translations") || []
+    const updatedTranslations = currentTranslations.map((t) =>
+      t.locale === activeLocale
+        ? { ...t, name: mainTranslation.name, description: mainTranslation.description, shortDescription: mainTranslation.shortDescription }
+        : t,
+    )
+    form.setValue("translations", updatedTranslations)
     toast.success(`Updated ${Languages.find((l) => l.code === activeLocale)?.name} translation`)
   }
 
   async function handleAutoTranslate() {
-    if (activeLocale === "en") {
+    if (activeLocale === currentLocale) {
       toast.error("Cannot translate to the source language")
       return
     }
+    const mainTranslation = translations[mainIndex]
+    if (!mainTranslation) return
     const sourceContent = {
-      name: form.getValues("name"),
-      shortDescription: form.getValues("shortDescription"),
-      description: form.getValues("description"),
+      name: mainTranslation.name,
+      shortDescription: mainTranslation.shortDescription,
+      description: mainTranslation.description,
     }
-    if (!sourceContent.name || !sourceContent?.shortDescription) {
-      toast.error("Missing source content. Please complete the English translation first.")
+    if (!sourceContent.name || !sourceContent.shortDescription) {
+      toast.error("Missing source content. Please complete the source translation first.")
       return
     }
     setIsTranslating(true)
     try {
       toast.promise(
-        translateContent(sourceContent, "en", activeLocale).then((translatedContent) => {
-          const currentTranslations = form.getValues("translation") ?? {}
-          form.setValue("translation", {
-            ...currentTranslations,
-            [activeLocale]: {
-              name: translatedContent.name ?? "",
-              description: translatedContent.description ?? "",
-              shortDescription: translatedContent.shortDescription ?? "",
-            },
-          })
+        translateContent(sourceContent, currentLocale, activeLocale).then((translatedContent) => {
+          const currentTranslations = form.getValues("translations") || []
+          const updatedTranslations = currentTranslations.map((t) =>
+            t.locale === activeLocale
+              ? {
+                ...t,
+                name: translatedContent.name ?? t.name,
+                description: translatedContent.description ?? t.description,
+                shortDescription: translatedContent.shortDescription ?? t.shortDescription,
+              }
+              : t,
+          )
+          form.setValue("translations", updatedTranslations)
         }),
         {
           loading: `Translating to ${Languages.find((l) => l.code === activeLocale)?.name}...`,
           success: `Translated to ${Languages.find((l) => l.code === activeLocale)?.name}`,
           error: "Translation failed",
-        }
+        },
       )
     } catch (error) {
       console.error("Translation error:", error)
@@ -711,41 +725,47 @@ function Translation({ form, isTranslating, setIsTranslating }: Readonly<{ form:
   }
 
   async function translateAllLanguages() {
+    const mainTranslation = translations[mainIndex]
+    if (!mainTranslation) return
     const sourceContent = {
-      name: form.getValues("name"),
-      shortDescription: form.getValues("shortDescription"),
-      description: form.getValues("description"),
+      name: mainTranslation.name,
+      shortDescription: mainTranslation.shortDescription,
+      description: mainTranslation.description,
     }
     if (!sourceContent.name || !sourceContent.shortDescription) {
-      toast.error("Missing source content. Please complete the English translation first.")
+      toast.error("Missing source content. Please complete the source translation first.")
       return
     }
     setIsTranslating(true)
     try {
-      const targetLanguages = Languages.filter((lang) => lang.code !== "en").map((lang) => lang.code)
+      const targetLanguages = Languages.filter((lang) => lang.code !== currentLocale).map((lang) => lang.code)
       toast.promise(
         Promise.all(
           targetLanguages.map(async (locale) => {
-            const translatedContent = await translateContent(sourceContent, "en", locale)
+            const translatedContent = await translateContent(sourceContent, currentLocale, locale)
             return { locale, content: translatedContent }
-          })
+          }),
         ).then((results) => {
-          const currentTranslations = form.getValues("translation") ?? {}
-          const newTranslations = { ...currentTranslations }
-          results.forEach(({ locale, content }) => {
-            newTranslations[locale] = {
-              name: content.name ?? "",
-              description: content.description ?? "",
-              shortDescription: content.shortDescription ?? "",
+          const currentTranslations = form.getValues("translations") || []
+          const updatedTranslations = currentTranslations.map((translation) => {
+            const result = results.find((r) => r.locale === translation.locale)
+            if (result) {
+              return {
+                ...translation,
+                name: result.content.name ?? translation.name,
+                description: result.content.description ?? translation.description,
+                shortDescription: result.content.shortDescription ?? translation.shortDescription,
+              }
             }
+            return translation
           })
-          form.setValue("translation", newTranslations)
+          form.setValue("translations", updatedTranslations)
         }),
         {
           loading: "Translating to all languages...",
           success: "All translations completed",
           error: "Some translations failed",
-        }
+        },
       )
     } catch (error) {
       console.error("Translation error:", error)
@@ -754,35 +774,76 @@ function Translation({ form, isTranslating, setIsTranslating }: Readonly<{ form:
     }
   }
 
+  const otherLocales = Languages.filter((lang) => lang.code !== currentLocale)
+
   return (
     <Card>
       <CardContent className="pt-6 space-y-8">
-        <TranslationStatusIndicator form={form} />
-
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h3 className="text-lg font-medium">Translations</h3>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={translateAllLanguages}
-            disabled={isTranslating}
-          >
+          <Button type="button" variant="outline" size="sm" onClick={translateAllLanguages} disabled={isTranslating}>
             {isTranslating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Globe className="mr-2 h-4 w-4" />}
             Translate All Languages
           </Button>
         </div>
 
-        <Tabs defaultValue="fr" value={activeLocale} onValueChange={(value) => setActiveLocale(value as Locale)}>
+        <div className="border rounded-lg p-4 bg-muted/20">
+          <h4 className="font-medium mb-4">{Languages.find((l) => l.code === currentLocale)?.name} (Source Language)</h4>
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name={`translations.${mainIndex}.name`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name ({Languages.find((l) => l.code === currentLocale)?.name})*</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter brand name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name={`translations.${mainIndex}.shortDescription`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Short Description ({Languages.find((l) => l.code === currentLocale)?.name})</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Enter short description" className="resize-none h-32" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name={`translations.${mainIndex}.description`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Description ({Languages.find((l) => l.code === currentLocale)?.name})</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Enter full description" className="min-h-[200px] resize-y" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <Tabs defaultValue={otherLocales[0]?.code || "fr"} value={activeLocale} onValueChange={(value) => setActiveLocale(value as Locale)}>
           <TabsList className="mb-6 w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-            {Languages.filter((lang) => lang.code !== "en").map(({ code, name }) => (
+            {otherLocales.map(({ code, name }) => (
               <TabsTrigger key={code} value={code} className="flex-1">
                 {name}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {Languages.filter((lang) => lang.code !== "en").map(({ code, name }) => (
+          {otherLocales.map(({ code, name }) => (
             <TabsContent key={code} value={code} className="space-y-6">
               <div className="flex justify-end gap-3">
                 <Button
@@ -800,67 +861,68 @@ function Translation({ form, isTranslating, setIsTranslating }: Readonly<{ form:
                   Auto Translate
                 </Button>
                 <Button type="button" variant="outline" size="sm" onClick={syncWithMainContent}>
-                  Copy from main content
+                  Copy from {Languages.find((l) => l.code === currentLocale)?.name}
                 </Button>
               </div>
 
-              <FormField
-                control={form.control}
-                name={`translation.${code}.name`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name ({name})</FormLabel>
-                    <FormControl>
-                      <Input placeholder={`Brand name in ${name}`} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={`translation.${code}.shortDescription`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Short Description ({name})</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={`Short description in ${name}`}
-                        className="resize-none h-32"
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        name={field.name}
-                        ref={field.ref}
+              {translations
+                .filter((t) => t.locale === code)
+                .map((translation, idx) => {
+                  const translationIndex = translations.findIndex((t) => t.locale === code)
+                  return (
+                    <div key={idx} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name={`translations.${translationIndex}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name ({name})</FormLabel>
+                            <FormControl>
+                              <Input placeholder={`Brand name in ${name}`} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <FormField
-                control={form.control}
-                name={`translation.${code}.description`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Description ({name})</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={`Full description in ${name}`}
-                        className="min-h-[200px] resize-y"
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        name={field.name}
-                        ref={field.ref}
+                      <FormField
+                        control={form.control}
+                        name={`translations.${translationIndex}.shortDescription`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Short Description ({name})</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder={`Short description in ${name}`}
+                                className="resize-none h-32"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
+                      <FormField
+                        control={form.control}
+                        name={`translations.${translationIndex}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Description ({name})</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder={`Full description in ${name}`}
+                                className="min-h-[200px] resize-y"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )
+                })}
             </TabsContent>
           ))}
         </Tabs>
@@ -869,7 +931,9 @@ function Translation({ form, isTranslating, setIsTranslating }: Readonly<{ form:
   )
 }
 
-function Review({ form, brand }: Readonly<{ form: FormType; brand?: IBrand }>) {
+function Review({ form, brand, currentLocale }: Readonly<{ form: FormType; brand?: IBrand; currentLocale: Locale }>) {
+  const formValues = form.getValues()
+  const mainTranslation = formValues.translations?.find((t) => t.locale === currentLocale)
 
   return (
     <div className="space-y-8">
@@ -882,24 +946,24 @@ function Review({ form, brand }: Readonly<{ form: FormType; brand?: IBrand }>) {
               <AccordionContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <Label className="font-medium text-sm">Brand Name</Label>
-                    <p className="text-sm">{form.getValues("name")}</p>
+                    <Label className="font-medium text-sm">Name</Label>
+                    <p className="text-sm">{mainTranslation?.name}</p>
                   </div>
                   <div>
-                    <Label className="font-medium text-sm">Brand Code</Label>
-                    <p className="text-sm">{form.getValues("code")}</p>
+                    <Label className="font-medium text-sm">Code</Label>
+                    <p className="text-sm">{formValues.code}</p>
                   </div>
                   <div>
                     <Label className="font-medium text-sm">Website</Label>
-                    <p className="text-sm">{form.getValues("website") || "Not provided"}</p>
+                    <p className="text-sm">{formValues.website}</p>
                   </div>
                   <div>
                     <Label className="font-medium text-sm">Slug</Label>
-                    <p className="text-sm">{form.getValues("slug")}</p>
+                    <p className="text-sm">{formValues.slug}</p>
                   </div>
                   <div>
                     <Label className="font-medium text-sm">Status</Label>
-                    <p className="text-sm">{form.getValues("isActive") ? "Active" : "Inactive"}</p>
+                    <p className="text-sm">{formValues.isActive ? "Active" : "Inactive"}</p>
                   </div>
                 </div>
               </AccordionContent>
@@ -911,11 +975,11 @@ function Review({ form, brand }: Readonly<{ form: FormType; brand?: IBrand }>) {
                 <div className="space-y-6">
                   <div>
                     <Label className="font-medium text-sm">Short Description</Label>
-                    <p className="text-sm">{form.getValues("shortDescription")}</p>
+                    <p className="text-sm">{formValues.shortDescription}</p>
                   </div>
                   <div>
                     <Label className="font-medium text-sm">Full Description</Label>
-                    <p className="text-sm whitespace-pre-wrap">{form.getValues("description") || "Not provided"}</p>
+                    <p className="text-sm whitespace-pre-wrap">{formValues.description || "Not provided"}</p>
                   </div>
                 </div>
               </AccordionContent>
@@ -927,13 +991,9 @@ function Review({ form, brand }: Readonly<{ form: FormType; brand?: IBrand }>) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <Label className="font-medium text-sm">Logo</Label>
-                    {form.getValues("logo") ? (
+                    {formValues.logo ? (
                       <div className="w-24 h-24 mt-2 rounded-md overflow-hidden relative">
-                        <Image
-                          src={form.getValues("logo") || "/placeholder.svg"}
-                          alt="Brand logo"
-                          className="object-cover w-full h-full"
-                        />
+                        <Image src={formValues.logo} alt="Brand logo" className="object-cover w-full h-full" />
                       </div>
                     ) : (
                       <p className="text-sm">No logo uploaded</p>
@@ -941,13 +1001,9 @@ function Review({ form, brand }: Readonly<{ form: FormType; brand?: IBrand }>) {
                   </div>
                   <div>
                     <Label className="font-medium text-sm">Cover Image</Label>
-                    {form.getValues("coverImage") ? (
+                    {formValues.coverImage ? (
                       <div className="w-48 h-24 mt-2 rounded-md overflow-hidden relative">
-                        <Image
-                          src={form.getValues("coverImage") || "/placeholder.svg"}
-                          alt="Cover image"
-                          className="object-cover w-full h-full"
-                        />
+                        <Image src={formValues.coverImage} alt="Cover image" className="object-cover w-full h-full" />
                       </div>
                     ) : (
                       <p className="text-sm">No cover image uploaded</p>
@@ -963,23 +1019,20 @@ function Review({ form, brand }: Readonly<{ form: FormType; brand?: IBrand }>) {
                 <div className="space-y-6">
                   <div>
                     <Label className="font-medium text-sm">Meta Title</Label>
-                    <p className="text-sm">{form.getValues("metadata.title") || "Not provided"}</p>
+                    <p className="text-sm">{formValues.metadata?.title || "Not provided"}</p>
                   </div>
                   <div>
                     <Label className="font-medium text-sm">Meta Description</Label>
-                    <p className="text-sm">{form.getValues("metadata.description") || "Not provided"}</p>
+                    <p className="text-sm">{formValues.metadata?.description || "Not provided"}</p>
                   </div>
                   <div>
                     <Label className="font-medium text-sm">Tags</Label>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {form.getValues("metadata.tags")?.length ? (
-                        form.getValues("metadata.tags").map((tag: string, index: number) => (
-                          <span
-                            key={tag + index}
-                            className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-xs"
-                          >
+                      {formValues.metadata?.tags?.length ? (
+                        formValues.metadata.tags.map((tag, index) => (
+                          <Badge key={index} variant="secondary">
                             {tag}
-                          </span>
+                          </Badge>
                         ))
                       ) : (
                         <p className="text-sm">No tags added</p>
@@ -989,14 +1042,11 @@ function Review({ form, brand }: Readonly<{ form: FormType; brand?: IBrand }>) {
                   <div>
                     <Label className="font-medium text-sm">Models</Label>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {form.getValues("models")?.length ? (
-                        (form.getValues("models") ?? []).map((model: string, index: number) => (
-                          <span
-                            key={index}
-                            className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-xs"
-                          >
+                      {formValues.models?.length ? (
+                        formValues.models.map((model, index) => (
+                          <Badge key={index} variant="outline">
                             {model}
-                          </span>
+                          </Badge>
                         ))
                       ) : (
                         <p className="text-sm">No models added</p>
@@ -1011,13 +1061,15 @@ function Review({ form, brand }: Readonly<{ form: FormType; brand?: IBrand }>) {
               <AccordionTrigger>Translations</AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
-                  {Object.entries(form.getValues("translation") || {}).map(([locale, translation]: [string, any]) => (
-                    <div key={locale} className="border rounded-md p-4">
+                  {formValues.translations?.map((translation) => (
+                    <div key={translation.locale} className="border rounded-md p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="bg-primary text-primary-foreground px-2 py-1 rounded-md text-xs uppercase">
-                          {locale}
+                          {translation.locale}
                         </span>
-                        <span className="text-sm font-medium">{Languages.find((l) => l.code === locale)?.name}</span>
+                        <span className="text-sm font-medium">
+                          {Languages.find((l) => l.code === translation.locale)?.name}
+                        </span>
                       </div>
                       <div className="space-y-3">
                         <div>

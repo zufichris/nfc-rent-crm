@@ -10,7 +10,7 @@ import {
 import Image from "next/image"
 import { Languages, Locale, TLanguage } from "@/types/language"
 import { cn } from "@/lib/utils"
-import { Link, redirect, usePathname, useRouter } from "@/i18n/routing"
+import {usePathname, useRouter } from "@/i18n/routing"
 import { useSearchParams } from "next/navigation"
 import { useLocale } from "next-intl"
 
@@ -27,10 +27,7 @@ export function Language({ className }: Readonly<{ className?: string }>) {
     function handleChange(code: Locale) {
         const selected = Languages.find(l => l.code === code) ?? defaultLang
         setSelectedLanguage(selected)
-        redirect({
-            href: `${pathname}?${searchParams}`,
-            locale: selected.code
-        })
+        router.push(pathname + (searchParams ? `?${searchParams}` : ''), { locale: selected.code })
     }
 
     return (

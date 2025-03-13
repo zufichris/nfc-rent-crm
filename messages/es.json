@@ -1,5 +1,34 @@
 {
-    "Home": {
-        "welcome": "Welcome to Back"
+    "Components": {
+        "Layout": {
+            "Sidebar": {
+                "Groups": {
+                    "dashboard": "Tablero",
+                    "fleet-management": "Gestión de Flotas",
+                    "bookings": "Reservas",
+                    "customers": "Clientes",
+                    "payments": "Pagos",
+                    "users-management": "Gestión de Usuarios",
+                    "settings": "Configuraciones"
+                },
+                "Links": {
+                    "overview": "Resumen",
+                    "analytics": "Analítica",
+                    "vehicles": "Vehículos",
+                    "brands": "Marcas",
+                    "booking-list": "Lista de Reservas",
+                    "all-customers": "Todos los Clientes",
+                    "blacklist": "Lista Negra",
+                    "transactions": "Transacciones",
+                    "refunds": "Reembolsos",
+                    "invoices": "Facturas",
+                    "users": "Usuarios",
+                    "roles-permissions": "Roles y Permisos",
+                    "general-settings": "Configuraciones Generales",
+                    "pricing-rules": "Reglas de Precios",
+                    "notifications": "Notificaciones"
+                }
+            }
+        }
     }
 }
