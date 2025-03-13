@@ -1,7 +1,11 @@
 export enum Currencies {
     USD = 'USD',
-    EURO = 'EURO',
-    USDT = 'USDT'
+    AED = 'AED',
+    EUR = 'EUR',
+    TRON = 'TRX',
+    TRC20 = 'TRC20',
+    ETH = 'ETH',
+    ERC20 = 'ERC20',
 }
 
 export enum CarPricingUnit {

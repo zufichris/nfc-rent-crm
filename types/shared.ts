@@ -7,6 +7,16 @@ export interface IBaseEntity {
     deletedAt?: string
 }
 
+export type NumberFilter = {
+    min?: number
+    max?: number
+  }
+  
+ export type DateFilter = {
+    start?: number | string | Date
+    end?: number | string | Date
+  }
+
 export type IBaseFilters = Partial<{
     sortBy: string,
     sortField: string,
