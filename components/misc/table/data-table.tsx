@@ -215,7 +215,7 @@ export function DataTable<T extends Record<string, any>>({
                                 filters={filters}
                                 activeFilters={activeFilters}
                                 applyFilters={applyFilters}
-                                title={title}
+                                title={name}
                             />
                         )}
                         <TableSearchInput
