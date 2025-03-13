@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { Languages, Locale } from './types/language';
+import { Languages } from './types/language';
 
 const publicRoutes = ['/signin'];
 const intlMiddleware = createMiddleware(routing);
