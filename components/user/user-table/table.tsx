@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 
 type UserTableProps = Readonly<{
     users: IUser[];
+    tableTitle?: string,
+    tableName?: string
     total: number;
     page: number;
     limit: number;
@@ -39,6 +41,8 @@ export function UserTable({
     users = [],
     total = 0,
     page = 1,
+    tableName = 'Users',
+    tableTitle = 'Manage Your Users',
     limit = 9,
     activeFilters = {}
 }: UserTableProps) {
@@ -50,8 +54,8 @@ export function UserTable({
         <>
             <DataTable
                 total={total}
-                title="Users Management"
-                name="User"
+                title={tableTitle}
+                name={tableName}
                 limit={limit}
                 page={page}
                 items={users}
