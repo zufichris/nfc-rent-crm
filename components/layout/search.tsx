@@ -8,13 +8,15 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { useEffect, useState } from "react"
-// import { MenuGroups } from "./app-sidebar"
 import { useRouter } from "next/navigation"
 import { SearchIcon } from "lucide-react"
+import { getMenuGroups } from "./app-sidebar"
+import { useTranslations } from "next-intl"
 
 
 export function Search() {
-
+  const t=useTranslations()
+  const MenuGroups=getMenuGroups(t)
   const router = useRouter()
   const [open, setOpen] = useState(false)
 
@@ -45,7 +47,7 @@ export function Search() {
         <CommandInput placeholder="Search..." className="outline-0" />
         <CommandList className="scrollbar">
           <CommandEmpty>No results found.</CommandEmpty>
-          {/* {MenuGroups.map(group => (
+          {MenuGroups.map(group => (
             <CommandGroup key={group.name} heading={<div className="flex">{group.icon} {group.name}</div>}>
               {group.links.map(link => (
                 <CommandItem className="cursor-pointer" key={link.title} onClick={() => handleSelect(`/${group.slug}/${link.slug}`)}>
@@ -53,7 +55,7 @@ export function Search() {
                 </CommandItem>
               ))}
             </CommandGroup>
-          ))} */}
+          ))}
         </CommandList>
       </CommandDialog>
 

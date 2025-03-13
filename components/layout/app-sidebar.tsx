@@ -30,6 +30,8 @@ import {
   Settings,
   Shield,
   Users,
+  Users2,
+  UserSquare,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "../theme/theme-toggle";
@@ -60,71 +62,8 @@ type Group = {
 export const AppSidebar = () => {
   const { openMobile } = useSidebar()
   const pathname = usePathname()
-  const t = useTranslations("Components.Layout.Sidebar")
-  const MenuGroups: Group[] = [
-    {
-      name: t("Groups.dashboard"),
-      slug: "dashboard",
-      icon: <LayoutDashboard className="size-4 mr-2" />,
-      links: [
-        { title: t("Links.overview"), slug: "overview" },
-        { title: t("Links.analytics"), slug: "analytics" }
-      ],
-    },
-    {
-      name: t("Groups.fleet-management"),
-      slug: "fleet-management",
-      icon: <Car className="size-4 mr-2" />,
-      links: [
-        { title: t("Links.vehicles"), slug: "vehicles" },
-        { title: t("Links.brands"), slug: "brands" },
-      ],
-    },
-    {
-      name: t("Groups.bookings"),
-      slug: "bookings",
-      icon: <CalendarCheck className="size-4 mr-2" />,
-      links: [{ title: t("Links.booking-list"), slug: "booking-list" }],
-    },
-    {
-      name: t("Groups.customers"),
-      slug: "customers",
-      icon: <Users className="size-4 mr-2" />,
-      links: [
-        { title: t("Links.all-customers"), slug: "all-customers" },
-        { title: t("Links.blacklist"), slug: "blacklist" },
-      ],
-    },
-    {
-      name: t("Groups.payments"),
-      slug: "payments",
-      icon: <CreditCard className="size-4 mr-2" />,
-      links: [
-        { title: t("Links.transactions"), slug: "transactions" },
-        { title: t("Links.refunds"), slug: "refunds" },
-        { title: t("Links.invoices"), slug: "invoices" },
-      ],
-    },
-    {
-      name: t("Groups.users-management"),
-      slug: "users-management",
-      icon: <Shield className="size-4 mr-2" />,
-      links: [
-        { title: t("Links.users"), slug: "users" },
-        { title: t("Links.roles-permissions"), slug: "roles-permissions" },
-      ],
-    },
-    {
-      name: t("Groups.settings"),
-      slug: "settings",
-      icon: <Settings className="size-4 mr-2" />,
-      links: [
-        { title: t("Links.general-settings"), slug: "general-settings" },
-        { title: t("Links.pricing-rules"), slug: "pricing-rules" },
-        { title: t("Links.notifications"), slug: "notifications" },
-      ],
-    },
-  ];
+  const t = useTranslations()
+  const MenuGroups: Group[] = getMenuGroups(t)
 
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
@@ -235,3 +174,75 @@ export const AppSidebar = () => {
   )
 }
 
+export function getMenuGroups(t: (key: string) => string): Group[] {
+  return [
+    {
+      name: "dashboard",
+      slug: "dashboard",
+      icon: <LayoutDashboard className="size-4 mr-2" />,
+      links: [
+        { title: "overview", slug: "overview" },
+        { title: "analytics", slug: "analytics" }
+      ],
+    },
+    {
+      name: "fleet-management",
+      slug: "fleet-management",
+      icon: <Car className="size-4 mr-2" />,
+      links: [
+        { title: "vehicles", slug: "vehicles" },
+        { title: "brands", slug: "brands" },
+      ],
+    },
+    {
+      name: "bookings",
+      slug: "bookings",
+      icon: <CalendarCheck className="size-4 mr-2" />,
+      links: [{ title: "booking-list", slug: "booking-list" }],
+    },
+    {
+      name: "customers",
+      slug: "customer-management",
+      icon: <Users className="size-4 mr-2" />,
+      links: [
+        { title: "customers", slug: "customers" },
+      ],
+    },
+    {
+      name: "employees",
+      slug: "employee-management",
+      icon: <UserSquare className="size-4 mr-2" />,
+      links: [
+        { title: "employees", slug: "employees" },
+        { title: "roles", slug: "roles-and-permissions" },
+      ],
+    },
+    {
+      name: "payments",
+      slug: "payments",
+      icon: <CreditCard className="size-4 mr-2" />,
+      links: [
+        { title: "transactions", slug: "transactions" },
+        { title: "refunds", slug: "refunds" },
+        { title: "invoices", slug: "invoices" },
+      ],
+    },
+    {
+      name: "settings",
+      slug: "settings",
+      icon: <Settings className="size-4 mr-2" />,
+      links: [
+        { title: "general-settings", slug: "general-settings" },
+        { title: "pricing-rules", slug: "pricing-rules" },
+        { title: "notifications", slug: "notifications" },
+      ],
+    },
+  ].map(g => ({
+    ...g,
+    name: t(`Components.Layout.Sidebar.Groups.${g.name}`),
+    links: g.links.map(l => ({
+      ...l,
+      title: t(`Components.Layout.Sidebar.Links.${l.title}`)
+    }))
+  }))
+}
