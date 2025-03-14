@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
     const locale = segments[0] && Languages.some(lang => lang.code === segments[0]) ? segments[0] : 'en';
     const token = request.cookies.get('token')?.value;
     const isProtectedRoute = publicRoutes.includes(`/${segments.slice(1).join('/')}`);
-    
+
     if (isProtectedRoute && !token) {
         const callbackUrl = encodeURIComponent(`${pathname}${queryParams ? `?${queryParams}` : ''}`);
         const loginUrl = new URL(`/${locale}/signin?callbackUrl=${callbackUrl}`, request.url);
