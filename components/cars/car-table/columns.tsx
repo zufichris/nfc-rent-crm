@@ -6,7 +6,7 @@ import { CarMedia, CarStatus, ICar } from "@/types/car"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 
-function renderCarStatus(car?: ICar) {
+export function renderCarStatus(car?: ICar) {
     if (!car) return null
 
     if (car.isDeleted) {
