@@ -6,11 +6,11 @@ import { DataTable, DataTableColumn } from "../../misc/table/data-table";
 import { GetBookingsFilters, IBooking } from "@/types/bookings";
 import { BookingTableColumns } from "./columns";
 import { BookingActionsModal } from "./action-modals";
-import { X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { DataTableFilter } from "../../misc/table/filter";
 import { BookingStatus } from "@/types/bookings";
 
-type ActionTypes = "view" | "cancel";
+type ActionTypes = "view" | "cancel" | "confirm" | "delete" | "bulkDelete";
 
 type BookingsListTableProps = Readonly<{
   bookings: IBooking[];
@@ -73,10 +73,18 @@ export function BookingsListTable({
   const bookingActions = [
     {
       name: "Cancel Booking",
-      icon: <X size={16} />,
+      icon: <X size={26} />,
       onClick: (booking: IBooking) => {
         setSelectedBooking(booking);
         setActionType("cancel");
+      },
+    },
+    {
+      name: "Confirm Booking",
+      icon: <Check size={26} />,
+      onClick: (booking: IBooking) => {
+        setSelectedBooking(booking);
+        setActionType("confirm");
       },
     },
   ];
@@ -98,12 +106,18 @@ export function BookingsListTable({
         selectedItems={selectedBookings}
         actions={bookingActions}
         activeFilters={activeFilters}
-        onAdd={() => router.push("/bookings/new")}
         onView={(booking: IBooking) => {
           setSelectedBooking(booking);
           setActionType("view");
         }}
-        onEdit={(booking: IBooking) => router.push(`/bookings/${booking.id}/edit`)}
+        onDelete={(booking) => {
+          setSelectedBooking(booking);
+          setActionType("delete");
+        }}
+        onBulkDelete={(items) => {
+          setSelectedBookings(items);
+          setActionType("bulkDelete");
+        }}
         onFiltersChange={(filters: Record<string, any>) => {
           const searchParams = new URLSearchParams(filters);
           router.push(`?${searchParams.toString()}`);
@@ -117,7 +131,6 @@ export function BookingsListTable({
         onSuccess={() => {
           setActionType(undefined);
           setSelectedBooking(undefined);
-          // router.refresh();
         }}
       />
     </>
