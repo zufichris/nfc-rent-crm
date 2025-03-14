@@ -1,10 +1,11 @@
 import { Card, CardDescription, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Progress } from "@/components/ui/progress"
+import { PageShell } from "@/components/layout/page-shell"
 
 export default function EditCarLoading() {
     return (
-        <Card className="container py-10">
+            <Card className="container py-10">
             <CardHeader className="mb-8">
                 <CardTitle className="text-3xl font-bold tracking-tight">Edit Brand</CardTitle>
                 <CardDescription className="text-muted-foreground">
