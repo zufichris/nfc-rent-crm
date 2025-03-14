@@ -68,14 +68,6 @@ export const TableRowActions = ({
     actions: DataTableAction[];
 }>) => (
     <div className="flex items-center justify-end space-x-1">
-        {onDelete && (
-            <TableActionButton
-                label="Delete"
-                onClick={() => onDelete(item)}
-                icon={<Trash2 size={18} />}
-                ariaLabel={`Delete ${nameField ? item[nameField] : item[idField]}`}
-            />
-        )}
         {onEdit && (
             <TableActionButton
                 label="Edit"
@@ -90,6 +82,14 @@ export const TableRowActions = ({
                 onClick={() => onView(item)}
                 icon={<Eye size={18} />}
                 ariaLabel={`View ${nameField ? item[nameField] : item[idField]}`}
+            />
+        )}
+        {onDelete && (
+            <TableActionButton
+                label="Delete"
+                onClick={() => onDelete(item)}
+                icon={<Trash2 size={18} />}
+                ariaLabel={`Delete ${nameField ? item[nameField] : item[idField]}`}
             />
         )}
         {actions.length > 0 && (
