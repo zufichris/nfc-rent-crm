@@ -11,37 +11,7 @@ import { Car, CarIcon, Fuel, Gauge, Heart, Share2, Sparkles } from "lucide-react
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-
-// Assuming this is imported from your types file
-interface ICar {
-    id?: string
-    name: string
-    model: string
-    shortDescription?: string
-    year: number
-    category: string
-    fuelType: string
-    transmission: string
-    doors: number
-    seats: number
-    mileage: number
-    condition: string
-    currentStatus: string
-    listingType: string[]
-    engineSpecs: {
-        horsepower?: number
-        torque?: number
-    }
-    color?: {
-        name: string
-        code?: string
-    }
-    media?: Array<{
-        url: string
-        type: string
-        position?: number
-    }>
-}
+import { ICar } from "@/types/car"
 
 interface CarCardProps {
     car: ICar
