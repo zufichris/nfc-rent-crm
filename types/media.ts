@@ -8,7 +8,7 @@ export enum MediaType {
     OTHER = 'other',
 }
 
-export interface MediaItem {
+export interface IMediaItem {
     url: string;
     type: MediaType; //Checkk MediaType enum
     isThumbnail: boolean; //defaults to false
