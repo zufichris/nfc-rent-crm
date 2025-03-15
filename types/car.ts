@@ -1,5 +1,6 @@
+import { IBrand, ICarHistoryRecord, IFeature, IModel, IOwnershipDetail } from "./brand";
 import { Locale } from "./language";
-import { MediaItem } from "./media";
+import { IMediaItem } from "./media";
 import { RentalPricingDto } from "./pricing";
 import { IBaseEntity, IBaseFilters, IResponsePaginated } from "./shared";
 
@@ -71,6 +72,19 @@ export enum CarDocumentType {
     OTHER = 'OTHER',
 }
 
+export enum CarHistoryRecordType {
+    MAINTENANCE = 'MAINTENANCE',
+    RENTAL = 'RENTAL',
+    SALE = 'SALE',
+    OWNERSHIP_CHANGE = 'OWNERSHIP_CHANGE',
+    ACCIDENT = 'ACCIDENT',
+    INSPECTION = 'INSPECTION',
+    LOCATION_CHANGE = 'LOCATION_CHANGE',
+    MODIFICATION = 'MODIFICATION',
+    DETAILS_UPDATED = 'DETAILS_UPDATED',
+  }
+  
+
 export interface CarTranslation {
     name: string;
     shortDescription?: string;
@@ -116,7 +130,7 @@ export interface CarOwnership {
     status: 'Active' | 'Pending' | 'Transferred';
 }
 
-export interface CarMedia extends MediaItem {
+export interface ICarMedia extends IMediaItem {
     title?: string;
     description?: string;
     position?: number;
@@ -133,38 +147,92 @@ export interface CarDocumentDto extends IBaseEntity {
 
 export type DateInputType = string | Date;
 export type NonEmptyArray<T> = [T, ...T[]];
+
 export interface ICar extends IBaseEntity {
+    slug: string;
+    vin: string;
+    blockchainId?: string;
+    year: number;
+
+    category: CarCategory;
+
+    fuelType: FuelType;
+
+    transmission: TransmissionType;
+    doors: number;
+    seats: number;
+
+    images: IMediaItem[];
+
+
+    videos: ICarMedia[];
+
+
+    virtualTourMedia: ICarMedia[];
+
+    metaverseAssetId?: string;
+
+    currentStatus: CarStatus;
+
+    listingType: CarListingType[];
+    acquisitionDate?: string | Date;
+    mileage: number;
+
+    condition: CarCondition;
+
+    inspectionStatus: CarInspectionStatus;
+    lastInspectionDate?: Date | string;
+    nextInspectionDueDate?: string;
+
+
+    brand?: IBrand;
+
+
+    model?: IModel;
+
+
+    features?: IFeature[];
+
+
+    rentalPricings: RentalPricingDto[];
+
+
+    documents: CarDocumentDto[];
+
+
+    ownershipDetails: IOwnershipDetail[];
+    history: ICarHistoryRecord[];
+
+
+    engineSpecs: {
+        type: string;
+        horsepower: number;
+        torque: number;
+        displacement?: number;
+        batteryCapacity?: number;
+        range?: number;
+        acceleration: number;
+        topSpeed: number;
+    };
+
+
+    dimensions: {
+        length: number;
+        width: number;
+        height: number;
+        weight: number;
+        cargoCapacity: number;
+    };
     name: string;
     shortDescription?: string;
     description?: string;
+    metadata?: {
+        title?: string;
+        description?: string;
+        tags?: string[];
+    };
     color?: { name: string; code?: string };
     interiorColor?: { name: string; code?: string };
-    vin: string
-    blockchainId?: string
-    year: number
-    category: string
-    fuelType: string
-    transmission: string
-    doors: number
-    seats: number
-    metaverseAssetId?: string
-    currentStatus: string
-    listingType: string[]
-    acquisitionDate?: string | Date
-    mileage: number
-    condition: string
-    inspectionStatus: string
-    lastInspectionDate?: string | Date
-    nextInspectionDueDate?: string | Date
-    engineSpecs: EngineSpecs
-    dimensions: Dimensions
-    media: CarMedia[]
-    model: string
-    features?: string[]
-    rentalPricings?: RentalPricingDto[]
-    documents?: CarDocumentDto[]
-    owner?: CarOwnership
-    translations?: CarTranslation[]
 }
 
 
@@ -188,7 +256,7 @@ export interface CreateCarDTO {
     nextInspectionDueDate?: DateInputType;
     engineSpecs: EngineSpecs;
     dimensions: Dimensions;
-    media: CarMedia[];
+    media: ICarMedia[];
     model: string;
     features?: string[];
     rentalPricings?: RentalPricingDto[];
