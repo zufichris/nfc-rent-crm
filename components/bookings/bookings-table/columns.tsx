@@ -1,5 +1,5 @@
 import { CarCard } from "@/components/cars/car-card";
-import { DataTableColumn, renderStatus } from "@/components/misc/table/data-table";
+import { DataTableColumn} from "@/components/misc/table/data-table";
 import { Variant } from "@/components/theme/variants";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { UserCard } from "@/components/user/user-card";
 import { IBooking, BookingStatus } from "@/types/bookings";
 import { ICar } from "@/types/car";
 import { IUser } from "@/types/user";
-import { CarIcon, Dot } from "lucide-react";
+import { CarIcon } from "lucide-react";
 
 export function renderBookingStatus(booking: IBooking) {
 
@@ -64,7 +64,7 @@ export const BookingTableColumns: (Omit<DataTableColumn, 'key'> & { key: keyof I
                     <TooltipTrigger asChild>
                         <div className="flex">
                             <Avatar className="h-10 w-10 mr-1 rounded-md border">
-                                <AvatarImage src={value.media[0]?.url} alt={`${value.name} ${value.model}`} className="object-cover" />
+                                <AvatarImage src={value.images?.[0]?.url} alt={`${value.name} ${value?.model?.name}`} className="object-cover" />
                                 <AvatarFallback className="rounded-md bg-muted">
                                     <CarIcon className="h-5 w-5 text-muted-foreground" />
                                 </AvatarFallback>
@@ -74,7 +74,7 @@ export const BookingTableColumns: (Omit<DataTableColumn, 'key'> & { key: keyof I
                                 <div className="flex items-center gap-2 text-muted-foreground text-base">
                                     {value.model && (
                                         <Badge variant="outline" className="px-1 py-0 h-auto line-clamp-1">
-                                            {value.model}
+                                            {value?.model.name}
                                         </Badge>
                                     )}
                                     {value.category && (
