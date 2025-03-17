@@ -29,7 +29,7 @@ export function StatCard({ icon, title, value, change, variant, subtitle }: Read
         </div>
         <div className="mt-4">
           <span
-            className={cn("text-sm font-medium", color, "bg-transparent","hover:bg-none")}
+            className={cn("text-sm font-medium", color, "bg-transparent", "hover:bg-none")}
           >
             {change}
           </span>
@@ -43,12 +43,12 @@ export function StatCardSkeleton() {
   return (
     <div className="card p-6">
       <div className="flex justify-between items-start">
+        <Skeleton className="rounded-full p-2 h-10 w-10 backdrop-blur-lg" />
         <div className="space-y-2">
           <Skeleton className="h-4 w-24 backdrop-blur-lg animate-pulse" />
           <Skeleton className="h-8 w-32 backdrop-blur-lg animate-pulse" />
           <Skeleton className="h-4 w-40 backdrop-blur-lg animate-pulse" />
         </div>
-        <Skeleton className="rounded-full p-2 h-10 w-10 backdrop-blur-lg" />
       </div>
     </div>
   )
