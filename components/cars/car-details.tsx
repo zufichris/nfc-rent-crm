@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
-import { Edit, Trash2, CarIcon, Calendar, Gauge, Fuel, Cog } from "lucide-react"
+import { Edit, Trash2, CarIcon, Calendar, Gauge, Fuel, Cog, VideoIcon, VideoOff, ImageIcon } from "lucide-react"
 import type { ICar } from "@/types/car"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -121,7 +121,7 @@ export function CarDetails({ car }: Readonly<CarDetailsProps>) {
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground mb-1">Model</h4>
-                      <p>{car.model}</p>
+                      <p>{car.model?.name}</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground mb-1">Condition</h4>
@@ -230,8 +230,8 @@ export function CarDetails({ car }: Readonly<CarDetailsProps>) {
                   {car.features && car.features.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {car.features.map((feature, index) => (
-                        <Badge key={feature + index} variant="outline">
-                          {feature}
+                        <Badge key={feature.code + index} variant="outline">
+                          {feature.name ?? feature.code}
                         </Badge>
                       ))}
                     </div>
@@ -297,9 +297,9 @@ export function CarDetails({ car }: Readonly<CarDetailsProps>) {
             <CardTitle>Images</CardTitle>
           </CardHeader>
           <CardContent>
-            {car.media.length ? (
+            {car.images?.length ? (
               <div className="grid grid-cols-2 gap-2">
-                {car.media.map((media, index) => (
+                {car.images.map((media, index) => (
                   <div key={media.type + index} className="relative aspect-square rounded-md overflow-hidden">
                     <Image
                       src={media.url}
@@ -319,7 +319,31 @@ export function CarDetails({ car }: Readonly<CarDetailsProps>) {
             ) : (
               <div className="flex items-center justify-center h-40 bg-muted rounded-md">
                 No Images Uploaded
-                <CarIcon className="h-10 w-10 text-muted-foreground" />
+                <ImageIcon className="h-10 w-10 text-muted-foreground" />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="space-y-6 col-span-3 card">
+          <CardHeader>
+            <CardTitle>Videos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {car.videos?.length ? (
+              <div className="grid grid-cols-2 gap-2">
+                {car.videos.map((media, index) => (
+                  <div key={media.type + index} className="relative aspect-square rounded-md overflow-hidden">
+                    <video
+                      src={media.url}
+                      className="aspect-video"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-40 bg-muted rounded-md">
+                No Videos Uploaded
+                <VideoOff className="h-10 w-10 text-muted-foreground" />
               </div>
             )}
           </CardContent>
