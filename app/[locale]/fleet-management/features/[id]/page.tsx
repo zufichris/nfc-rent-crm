@@ -4,22 +4,10 @@ import { Badge } from "@/components/ui/badge"
 import { Star, Tag } from "lucide-react"
 import Link from "next/link"
 import { formatDate } from "@/utils/format"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { IFeature } from "@/types/features"
-
-export default async function FeatureDetailPage({ params }: { params: { id: string } }) {
-  const featureId = params.id
-
-  // In a real app, you would fetch the feature data from an API
-  // This would be a server-side data fetch
-  // For example: const feature = await fetchFeatureById(featureId);
-
-  // If feature not found, return 404
-  // if (!feature) return notFound();
-
-  const feature: IFeature = {
-    id: featureId,
+ const feature: IFeature = {
+    id: "featureId",
     name: "Leather Seats",
     code: "leather-seats",
     slug: "leather-seats",
@@ -32,6 +20,31 @@ export default async function FeatureDetailPage({ params }: { params: { id: stri
     isDeleted: false,
     createdAt: "2023-01-05",
   }
+
+  export async function generateMetadata({ params }: { params: { id: string } }) {
+    return {
+      title: `${feature.name} - Feature Details | NFC Car Rental CRM`,
+      description: feature.shortDescription || `Detailed information about ${feature.name} feature in our vehicle fleet`,
+      openGraph: {
+        title: `${feature.name} - Feature Details`,
+        description: feature.shortDescription,
+        type: 'website',
+        images: ['/images/features-og.jpg'],
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+      alternates: {
+        canonical: `/fleet-management/features/${feature.id}`,
+      }
+    }
+  }
+
+export default async function FeatureDetailPage({ params }: { params: { id: string } }) {
+  const featureId = params.id
+
+ 
 
   return (
     <div className="space-y-6">
