@@ -9,6 +9,35 @@ import { getBrandById } from "@/lib/actions/brands"
 import { notFound } from "next/navigation"
 import { Image } from "@/components/misc/image"
 
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const res = await getBrandById(params.id)
+  
+  if (!res.success)
+    return {
+      title: 'Brand Not Found',
+      description: 'The requested brand could not be found.'
+    }
+
+  const brand = res.data
+  
+  return {
+    title: `${brand.name} - NFC Car Rental CRM`,
+    description: brand.description || `View details and models for ${brand.name} vehicles`,
+    keywords: [
+      brand.name,
+      'car rental',
+      'fleet management',
+      'vehicle brand',
+      ...(brand.metadata?.tags || [])
+    ].join(', '),
+    openGraph: {
+      title: `${brand.name} - NFC Car Rental CRM`,
+      description: brand.description || `View details and models for ${brand.name} vehicles`,
+      images: brand.logo ? [brand.logo] : []
+    }
+  }
+}
+
 export default async function BrandDetailPage({ params }: Readonly<{ params: { id: string } }>) {
   const brandId = params.id
   const res = await getBrandById(brandId)
