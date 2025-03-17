@@ -5,8 +5,12 @@ import React from 'react'
 import { GetBookingsFilters, GetBookingsResponse } from '@/types/bookings'
 import { getBookings } from '@/lib/actions/bookings'
 import { BookingsListTable } from '@/components/bookings/bookings-table/table'
-import { PageShell } from '@/components/layout/page-shell'
-import { headers } from 'next/headers'
+
+export const metadata = {
+    title: 'Bookings Management | NFC Car Rental',
+    description: 'View and manage all car rental bookings, track statistics, and monitor booking status including completed, pending, and cancelled reservations.',
+    keywords: 'car rental bookings, booking management, rental reservations, car rental CRM',
+};
 
 export default async function BookingListPage({ searchParams }: Readonly<{ searchParams: Promise<GetBookingsFilters> }>) {
     const search = await searchParams

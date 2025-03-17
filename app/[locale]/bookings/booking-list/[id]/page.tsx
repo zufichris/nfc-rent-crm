@@ -11,11 +11,8 @@ import { CarCategory } from "@/types/car"
 import { formatDate, formatDateTime } from "@/utils/format"
 import { PaymentStatusBadge } from "@/components/payment/status-badge"
 import { Image } from "@/components/misc/image"
-
-export default async function BookingDetailPage({ params }: Readonly<{ params: { id: string } }>) {
-  const bookingId = params.id
-  const booking={
-    id: bookingId,
+const booking={
+    id: "bookingId",
     user: {
       id: "u1",
       fullName: "John Smith",
@@ -67,6 +64,22 @@ export default async function BookingDetailPage({ params }: Readonly<{ params: {
     notes: "Customer requested car to be ready by 9:30 AM for early pickup.",
     createdAt: new Date("2023-08-10"),
   } as any
+
+  export async function generateMetadata({ params }: { params: { id: string } }) {
+    return {
+      title: `Booking #${params.id} | NFC Car Rental CRM`,
+      description: `View details for car rental booking #${params.id} including customer information, vehicle details, payment status and driver information.`,
+      openGraph: {
+        title: `Booking #${params.id} | NFC Car Rental CRM`,
+        description: `Manage car rental booking #${params.id} with complete booking details, payment information and driver verification.`,
+        type: 'website',
+      }
+    }
+  }
+
+export default async function BookingDetailPage({ params }: Readonly<{ params: { id: string } }>) {
+  const bookingId = params.id
+  
 
   return (
     <div className="space-y-6">

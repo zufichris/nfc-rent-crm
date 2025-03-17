@@ -6,21 +6,9 @@ import { Building, Car, Tag } from "lucide-react"
 import Link from "next/link"
 import type { IModel, IBrand } from "@/types/brand"
 import { formatDate } from "@/utils/format"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip" 
 
-export default async function ModelDetailPage({ params }: { params: { id: string } }) {
-  const modelId = params.id
-
-  // In a real app, you would fetch the model data from an API
-  // This would be a server-side data fetch
-  // For example: const model = await fetchModelById(modelId);
-
-  // If model not found, return 404
-  // if (!model) return notFound();
-
-  // Mock brand data
-  const brand: IBrand = {
+const brand: IBrand = {
     id: "1",
     name: "Ferrari",
     code: "ferrari",
@@ -36,9 +24,8 @@ export default async function ModelDetailPage({ params }: { params: { id: string
     },
   }
 
-  // In a real app, you would fetch the model data from an API
   const model: IModel = {
-    id: modelId,
+    id: "modelId",
     name: "488 GTB",
     code: "488-gtb",
     slug: "488-gtb",
@@ -55,6 +42,33 @@ export default async function ModelDetailPage({ params }: { params: { id: string
     isDeleted: false,
     createdAt: "2023-01-05",
   }
+
+  export async function generateMetadata({ params }: { params: { id: string } }) {
+    return {
+      title: `${model.name} | Fleet Management - NFC Rental CRM`,
+      description: model.shortDescription || `Details and specifications for ${model.name} model by ${model.brand?.name}`,
+      keywords: model.metadata?.tags?.join(", ") || `car rental, ${model.brand?.name}, ${model.name}`,
+      openGraph: {
+        title: `${model.name} | NFC Rental CRM`,
+        description: model.shortDescription,
+        type: 'article',
+        images: [{
+          url: model.brand?.logo || '/placeholder.svg',
+          width: 800,
+          height: 600,
+          alt: `${model.name} by ${model.brand?.name}`
+        }]
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${model.name} | NFC Rental CRM`,
+        description: model.shortDescription
+      }
+    }
+  }
+export default async function ModelDetailPage({ params }: Readonly<{ params: { id: string } }>) {
+  const modelId = params.id
+ 
 
   return (
     <div className="space-y-6">

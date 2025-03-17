@@ -1,5 +1,4 @@
 import ErrorPage from '@/app/[locale]/error'
-import { PageShell } from '@/components/layout/page-shell'
 import { StatCard } from '@/components/misc/stat-card'
 import { UserTable } from '@/components/user/user-table/table'
 import { getUsers } from '@/lib/actions/user'
@@ -7,6 +6,13 @@ import { GetUsersFilters, GetUsersResponse } from '@/types/user'
 import { Activity, ShieldCheck, Users, UserX } from 'lucide-react'
 import React from 'react'
 import { promisify } from 'util'
+
+export const metadata = {
+  title: 'Customer Management | NFC Car Rental CRM',
+  description: 'Manage your customers, view customer statistics, verify accounts, and track customer activity in the NFC Car Rental CRM system.',
+  keywords: 'customer management, car rental, CRM, customer statistics, user verification',
+}
+
 export default async function CustomerListPage({ searchParams }: Readonly<{ searchParams: Promise<GetUsersFilters> }>) {
   const search = await searchParams
   await promisify(setTimeout)(2000)

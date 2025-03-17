@@ -4,6 +4,17 @@ import { Currencies } from "@/types/pricing"
 import { PaymentStatus } from "@/types/payment"
 import { PaymentTable } from "@/components/payment/paymet-table/table"
 
+export const metadata = {
+    title: 'Payments | NFC Rent CRM',
+    description: 'Track and manage all payment transactions for car rentals. View payment status, revenue metrics, and transaction details.',
+    keywords: 'car rental payments, payment management, transaction tracking, rental revenue',
+    openGraph: {
+        title: 'Payment Management - NFC Rent CRM',
+        description: 'Comprehensive payment tracking and management system for luxury car rentals',
+        type: 'website',
+    }
+}
+
 export default async function PaymentsListPage({params }: Readonly<{ params: Promise<{ search: Record<string, string> }> }>) {
     const search = await params
 

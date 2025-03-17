@@ -25,19 +25,8 @@ enum CustomerStatus {
   BLACKLISTED = "BLACKLISTED",
   PENDING_VERIFICATION = "PENDING_VERIFICATION"
 }
-
-export default async function CustomerDetailPage({ params }: { params: { id: string } }) {
-  const customerId = params.id;
-
-  // In a real app, you would fetch the customer data from an API
-  // For example: const customer = await fetchCustomerById(customerId);
-  
-  // If customer not found, return 404
-  // if (!customer) return notFound();
-  
-  // Mock customer data - this would come from your API
   const customer = {
-    id: customerId,
+    id: "customerId",
     firstName: "Alex",
     lastName: "Morgan",
     email: "alex.morgan@example.com",
@@ -159,6 +148,29 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
     }
   };
 
+  export async function generateMetadata({ params }: { params: { id: string }}) {
+    return {
+      title: `${customer.firstName} ${customer.lastName} - Customer Profile | NFC Car Rental CRM`,
+      description: `Customer profile for ${customer.firstName} ${customer.lastName}. ${customer.type} customer since ${new Date(customer.memberSince).getFullYear()}. View rental history, documents, and account details.`,
+      openGraph: {
+        title: `${customer.firstName} ${customer.lastName} - Customer Profile`,
+        description: `Customer profile and rental history for ${customer.firstName} ${customer.lastName}`,
+        images: [customer.photo],
+      },
+      twitter: {
+        card: 'summary',
+        title: `Customer Profile - ${customer.firstName} ${customer.lastName}`,
+        description: `View ${customer.type.toLowerCase()} customer details and rental history`,
+        images: [customer.photo],
+      },
+      alternates: {
+        canonical: `/customer-management/customers/${params.id}`,
+      }
+    }
+  }
+
+export default async function CustomerDetailPage({ params }: Readonly<{ params: { id: string } }>) {
+  const customerId = params.id;
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",

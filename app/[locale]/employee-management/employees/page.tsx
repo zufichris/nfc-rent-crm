@@ -1,11 +1,17 @@
 import ErrorPage from '@/app/[locale]/error'
-import { PageShell } from '@/components/layout/page-shell'
 import { StatCard } from '@/components/misc/stat-card'
 import { UserTable } from '@/components/user/user-table/table'
 import { getUsers } from '@/lib/actions/user'
 import { GetUsersFilters, GetUsersResponse } from '@/types/user'
 import { Activity, ShieldCheck, Users, UserX } from 'lucide-react'
 import React from 'react'
+
+export const metadata = {
+  title: 'Employee Management | NFC Car Rental CRM',
+  description: 'Manage employees, view statistics, and handle employee accounts in the NFC Car Rental management system.',
+  keywords: 'employee management, car rental staff, employee statistics, CRM system',
+}
+
 export default async function CustomerListPage({ searchParams }: Readonly<{ searchParams: Promise<GetUsersFilters> }>) {
   const search = await searchParams
   const res: GetUsersResponse = await getUsers(search)

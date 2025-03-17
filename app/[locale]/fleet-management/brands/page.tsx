@@ -5,7 +5,12 @@ import { getBrands } from '@/lib/actions/brands'
 import { GetBrandsFilters, GetBrandsResponse } from '@/types/brand'
 import { Package, Activity, Trash2, ShieldBan } from 'lucide-react'
 import React from 'react'
-import { PageShell } from '@/components/layout/page-shell'
+
+export const metadata = {
+  title: 'Brand Management | NFC Car Rental CRM',
+  description: 'Manage vehicle brands, track active and inactive brands, and monitor brand statistics in the NFC Car Rental fleet management system.',
+  keywords: 'car rental, fleet management, brand management, vehicle brands, NFC',
+}
 
 export default async function BrandListPage({ searchParams }: Readonly<{ searchParams: Promise<GetBrandsFilters> }>) {
   const search = await searchParams

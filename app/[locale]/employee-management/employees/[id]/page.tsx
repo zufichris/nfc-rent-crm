@@ -43,19 +43,8 @@ enum EmployeeRole {
   MECHANIC = "MECHANIC",
   ADMIN = "ADMIN",
 }
-
-export default async function EmployeeDetailPage({ params }: { params: { id: string } }) {
-  const employeeId = params.id
-
-  // In a real app, you would fetch the employee data from an API
-  // For example: const employee = await fetchEmployeeById(employeeId);
-
-  // If employee not found, return 404
-  // if (!employee) return notFound();
-
-  // Mock employee data
-  const employee = {
-    id: employeeId,
+const employee = {
+    id: "employeeId",
     firstName: "Sarah",
     lastName: "Johnson",
     email: "sarah.johnson@example.com",
@@ -171,6 +160,26 @@ export default async function EmployeeDetailPage({ params }: { params: { id: str
     createdAt: new Date("2019-05-15"),
     updatedAt: new Date("2023-01-20"),
   }
+
+  export async function generateMetadata({ params }: { params: { id: string } }) {
+    return {
+      title: `${employee.firstName} ${employee.lastName} - Employee Profile | NFC Car Rental CRM`,
+      description: `Employee profile for ${employee.firstName} ${employee.lastName}, ${employee.role.toLowerCase().replace(/_/g, ' ')} at NFC Car Rental. View performance metrics, bookings history, and employment details.`,
+      openGraph: {
+        title: `${employee.firstName} ${employee.lastName} - Employee Profile`,
+        description: `${employee.role.replace(/_/g, ' ')} at NFC Car Rental with ${Math.floor((new Date().getTime() - employee.hireDate.getTime()) / (1000 * 60 * 60 * 24 * 365))} years of service.`,
+        images: [employee.photo],
+      },
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }
+  }
+
+export default async function EmployeeDetailPage({ params }: Readonly<{ params: { id: string } }>) {
+  const employeeId = params.id
+  
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {

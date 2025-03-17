@@ -6,6 +6,23 @@ import { Currencies } from "@/types/pricing"
 import {Calendar, Car, CreditCard, Download, User } from "lucide-react"
 import Link from "next/link"
 
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  return {
+    title: `Payment #${params.id} | NFC Car Rental CRM`,
+    description: `View payment details and transaction information for payment #${params.id} in the NFC Car Rental management system.`,
+    robots: {
+      index: false,
+      follow: false,
+    },
+    openGraph: {
+      title: `Payment #${params.id}`,
+      description: `Payment details for transaction #${params.id}`,
+      type: 'website',
+      siteName: 'NFC Car Rental CRM',
+    }
+  }
+}
+
 export default async function PaymentDetailPage({ params }:Readonly< { params:{ id: string }}>) {
   const paymentId = params.id
 

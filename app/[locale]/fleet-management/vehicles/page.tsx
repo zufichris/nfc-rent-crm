@@ -5,6 +5,17 @@ import { StatCard } from "@/components/misc/stat-card"
 import ErrorPage from "@/app/[locale]/error"
 import { Activity, CarIcon, Check, Trash2 } from "lucide-react"
 
+export const metadata = {
+  title: 'Fleet Management | NFC Car Rental CRM',
+  description: 'Manage your vehicle fleet inventory, track active and inactive cars, and monitor fleet statistics.',
+  keywords: 'fleet management, car rental, vehicle inventory, automotive CRM',
+  openGraph: {
+    title: 'Fleet Management Dashboard',
+    description: 'Comprehensive vehicle fleet management system for car rental businesses',
+    type: 'website',
+  }
+}
+
 export default async function CarsPage({
   searchParams,
 }: Readonly<{

@@ -3,6 +3,24 @@ import { StatCard } from "@/components/misc/stat-card"
 import { Car, CheckCircle, Trash2, Building } from "lucide-react"
 import type { IModel, IBrand } from "@/types/brand"
 
+export async function generateMetadata() {
+    return {
+        title: 'Fleet Models Management | NFC Car Rental CRM',
+        description: 'Manage vehicle models, track inventory, and monitor model performance across your rental fleet.',
+        keywords: 'car rental, fleet management, vehicle models, rental inventory, NFC CRM',
+        openGraph: {
+            title: 'Fleet Models Management | NFC Car Rental CRM',
+            description: 'Comprehensive fleet model management system for car rental businesses',
+            type: 'website',
+            images: ['/og-fleet-management.jpg'],
+        },
+        robots: {
+            index: true,
+            follow: true,
+        }
+    }
+}
+
 export default async function ModelsListPage({ params }: Readonly<{ params: Promise<{ search: Record<string, string> }> }>) {
     const { search } = await params
     const brands: IBrand[] = [
