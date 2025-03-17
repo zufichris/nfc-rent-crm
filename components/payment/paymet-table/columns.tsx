@@ -1,18 +1,20 @@
 import { DataTableColumn, renderStatus } from "@/components/misc/table/data-table"
 import { Badge } from "@/components/ui/badge"
-import { PaymentStatus, type IPayment } from "@/types/payment"
-import { Currencies } from "@/types/pricing"
 import { formatDate } from "@/utils/format"
+import { PaymentStatusBadge } from "../status-badge"
+import { getCurrencySymbol } from "@/utils/functions"
+import { IPayment } from "@/types/payment"
+import { IBooking } from "@/types/bookings"
 
 export const PaymentTableColumns: DataTableColumn[] = [
   {
-    key: "booking.user.fullName",
+    key: "booking",
     name: "Customer",
-    render: (value, item: IPayment) => (
+    render: (value:IBooking, item: IPayment) => (
       <div className="flex items-center space-x-3">
         <div>
-          <div className="font-medium text-foreground">{value}</div>
-          <div className="text-sm text-muted-foreground">{item.booking?.car?.name}</div>
+          <div className="font-medium">{value.user.fullName}</div>
+          <div className="text-sm text-muted-foreground">{value.car.name}</div>
         </div>
       </div>
     ),
@@ -62,52 +64,13 @@ export const PaymentTableColumns: DataTableColumn[] = [
   },
   {
     key: "isActive",
-    name: "Status",
+    name: "Active/Deleted",
     render: (_, item) => {
       return renderStatus(item)
     },
   },
 ]
 
-function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
-  const getVariant = () => {
-    switch (status) {
-      case PaymentStatus.PAID:
-        return "success"
-      case PaymentStatus.PENDING:
-        return "warning"
-      case PaymentStatus.PENDING_CAPTURE:
-        return "info"
-      case PaymentStatus.FAILED:
-        return "destructive"
-      case PaymentStatus.REFUNDED:
-        return "outline"
-      default:
-        return "secondary"
-    }
-  }
 
-  return (
-    <Badge variant={getVariant()} className="capitalize">
-      {status.toLowerCase().replace("_", " ")}
-    </Badge>
-  )
-}
 
-function getCurrencySymbol(currency: Currencies) {
-  switch (currency) {
-    case Currencies.USD:
-      return "$"
-    case Currencies.EUR:
-      return "€"
-    case Currencies.ETH:
-      return "Ξ"
-    case Currencies.TRON:
-      return "TRX"
-    case Currencies.AED:
-      return "د.إ"
-    default:
-      return ""
-  }
-}
 
