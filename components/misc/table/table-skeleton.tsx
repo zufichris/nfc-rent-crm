@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export const TableSkeleton = () => {
     return (
-        <div className="min-h-screen">
+        <div className="min-h-[100vh]">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCardSkeleton />
                 <StatCardSkeleton />
