@@ -5,51 +5,30 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, CreditCard, User } from "lucide-react"
-import { Currencies } from "@/types/pricing"
-import { PaymentStatus } from "@/types/payment"
-
+import { Calendar, CreditCard} from "lucide-react"
+import { formatDate } from "@/utils/format"
+import { PaymentStatusBadge } from "../status-badge"
+import { getCurrencySymbol } from "@/utils/functions"
+import { IPayment } from "@/types/payment"
+import { UserAvatar } from "@/components/user/user-avatar"
+const baseUrl=`/payments/payment-list`
 export function PaymentDetailModal({
   payment,
   open,
   onClose,
-}: {
-  payment: any
+}: Readonly<{
+  payment:IPayment
   open: boolean
   onClose: () => void
-}) {
+}>) {
   const router = useRouter()
 
   const handleViewFullDetails = () => {
-    router.push(`/payments/${payment.id}`)
+    router.push(`${baseUrl}/${payment.id}`)
     onClose()
   }
 
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return "N/A"
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })
-  }
 
-  const getCurrencySymbol = (currency: Currencies) => {
-    switch (currency) {
-      case Currencies.USD:
-        return "$"
-      case Currencies.EUR:
-        return "€"
-      case Currencies.ETH:
-        return "Ξ"
-      case Currencies.TRON:
-        return "TRX"
-      case Currencies.AED:
-        return "د.إ"
-      default:
-        return ""
-    }
-  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -109,9 +88,9 @@ export function PaymentDetailModal({
           </TabsContent>
           <TabsContent value="booking" className="space-y-4 mt-4">
             <div className="flex items-center gap-4 p-4 border rounded-lg">
-              <User className="h-5 w-5 text-muted-foreground" />
+              <UserAvatar  src={payment?.booking?.user?.photo}/>
               <div>
-                <div className="font-medium">{payment.booking.user.fullName}</div>
+                <div className="font-medium">{payment?.booking?.user?.fullName}</div>
                 <div className="text-sm text-muted-foreground">Customer</div>
               </div>
             </div>
@@ -121,15 +100,15 @@ export function PaymentDetailModal({
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Vehicle:</span>
-                  <span>{payment.booking.car.name}</span>
+                  <span>{payment?.booking?.car?.name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Pickup Date:</span>
-                  <span>{formatDate(payment.booking.pickupDate)}</span>
+                  <span>{formatDate(new Date(payment?.booking?.pickupDate!))}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Return Date:</span>
-                  <span>{formatDate(payment.booking.returnDate)}</span>
+                  <span>{formatDate(new Date(payment?.booking?.returnDate!))}</span>
                 </div>
               </div>
             </div>
@@ -147,28 +126,5 @@ export function PaymentDetailModal({
   )
 }
 
-function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
-  const getVariant = () => {
-    switch (status) {
-      case PaymentStatus.PAID:
-        return "success"
-      case PaymentStatus.PENDING:
-        return "warning"
-      case PaymentStatus.PENDING_CAPTURE:
-        return "secondary"
-      case PaymentStatus.FAILED:
-        return "destructive"
-      case PaymentStatus.REFUNDED:
-        return "outline"
-      default:
-        return "secondary"
-    }
-  }
 
-  return (
-    <Badge variant={getVariant() as any} className="capitalize">
-      {status.toLowerCase().replace("_", " ")}
-    </Badge>
-  )
-}
 
