@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "@/components/theme/globals.css"
-import { ThemeProvider } from "@/components/theme/theme-provider"
+import { ThemeProvider } from "next-themes"
 import { Shell } from "@/components/layout/shell"
 import { getLoggedInUser } from "@/lib/actions/auth"
 import { Toaster } from "@/components/ui/sonner"
@@ -11,6 +11,7 @@ import { NextIntlClientProvider } from "next-intl"
 import { routing } from "@/i18n/routing"
 import { notFound } from "next/navigation"
 import { getMessages } from "next-intl/server"
+import { TopLoader } from "@/components/layout/top-loader"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export default async function RootLayout({
   if (!locale || !routing.locales.includes(locale)) {
     notFound()
   }
-  const isRtl=locale==="ar"
+  const isRtl = locale === "ar"
 
   const messages = await getMessages();
   const res = await getLoggedInUser()
@@ -37,6 +38,7 @@ export default async function RootLayout({
     <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className={`${inter.className} bg-foreground/10 dark:bg-background/55 bg-opacity-50 backdrop-blur-md`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
+          <TopLoader />
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
             {res.success ? <Shell>{children}</Shell> : children}
             <Toaster closeButton visibleToasts={2} className="card" />
