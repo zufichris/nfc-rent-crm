@@ -1,4 +1,5 @@
 import { env } from "@/config/env";
+import { Currencies } from "@/types/pricing";
 
 export async function request<T>(path: string, init?: RequestInit, baseUrl?: string): Promise<T> {
     try {
@@ -29,3 +30,20 @@ export  function generateSlug(name: string) {
       .replace(/\s+/g, "-")
  return slug
     }
+
+    export function getCurrencySymbol(currency:string) {
+        switch (currency) {
+          case Currencies.USD:
+            return "$"
+          case Currencies.EUR:
+            return "€"
+          case Currencies.ETH:
+            return "Ξ"
+          case Currencies.TRON:
+            return "TRX"
+          case Currencies.AED:
+            return "د.إ"
+          default:
+            return ""
+        }
+      }
