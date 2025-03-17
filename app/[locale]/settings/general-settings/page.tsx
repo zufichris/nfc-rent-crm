@@ -12,8 +12,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { User, Building, Bell, Shield, Globe, Clock } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Settings | Luxury Car Rental Dashboard",
-  description: "Manage your dashboard settings",
+  title: "Settings | NFC Car Rental CRM",
+  description: "Manage your account settings, company information, notifications, appearance, and advanced configurations for your car rental business.",
+  keywords: "car rental settings, business hours, company profile, notification preferences, security settings, payment integration, CRM settings",
+  authors: [{ name: "NFC Car Rental" }],
+  openGraph: {
+    title: "Settings Dashboard - NFC Car Rental CRM",
+    description: "Configure and customize your car rental business management system.",
+    type: "website",
+  }
 }
 
 export default function SettingsPage() {
