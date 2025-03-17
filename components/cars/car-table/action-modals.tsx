@@ -1,13 +1,12 @@
 "use client"
-
 import { useState } from "react"
 import { format } from "date-fns"
-import { ArrowRight, Car, Globe, Tag } from 'lucide-react'
+import { ArrowRight, Car} from 'lucide-react'
 import { toast } from "sonner"
 import { ICar } from "@/types/car"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -60,11 +59,11 @@ const ViewCarModal = ({ car, onClose, isOpen }: Readonly<CarActionsModalProps>) 
   if(!car)
     return null
   
-  const thumbnail = car?.images?.find(img=>img.isThumbnail)??car?.images[0]
+  const thumbnail = car?.images?.length? (car?.images?.find(img=>img.isThumbnail)??car?.images[0]):undefined
   
     return (
       <Dialog open={isOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogContent className="w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
           <DialogHeader
             className={cn(
               "p-6 rounded-t-lg flex flex-col items-center gap-4 relative",
@@ -103,7 +102,7 @@ const ViewCarModal = ({ car, onClose, isOpen }: Readonly<CarActionsModalProps>) 
           <div className="overflow-y-auto scrollbar px-6 py-5 space-y-6 flex-1">
             <div className="grid gap-2">
               <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">VIN</Label>
-              <div className="text-sm font-mono bg-accent/10 p-2 rounded-md border">{car?.vin}</div>
+              <DialogDescription className="text-sm font-mono bg-accent/10 p-2 rounded-md border">{car?.vin}</DialogDescription>
             </div>
   
             <div className="grid grid-cols-2 gap-6">
@@ -188,18 +187,18 @@ const ViewCarModal = ({ car, onClose, isOpen }: Readonly<CarActionsModalProps>) 
               </div>
             </div>
   
-            {car?.features && car?.features.length > 0 && (
+            {car?.features?.length ?(
               <div className="grid gap-3">
                 <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Features</Label>
                 <div className="flex flex-wrap gap-2 bg-accent/10 p-3 rounded-md border">
-                  {car.features.map((feature, index) => (
-                    <Badge key={index + feature.code} variant="outline" className="bg-background/80">
+                  {car.features.map((feature,i) => (
+                    <Badge key={feature.id??(i+1)} variant="outline" className="bg-background/80">
                       {feature.name??feature.code}
                     </Badge>
                   ))}
                 </div>
               </div>
-            )}
+            ):null}
   
             <div className="grid grid-cols-2 gap-6 text-sm text-muted-foreground">
               <div>
@@ -284,9 +283,9 @@ function DeleteCarModal({ car, isOpen, onClose, onSuccess }: ModalProps & { car?
                     {car?.shortDescription && (
                         <div className="grid gap-2">
                             <Label>Description</Label>
-                            <div className="text-sm text-muted-foreground border rounded-md p-3 bg-muted/30">
+                            <DialogDescription className="text-sm text-muted-foreground border rounded-md p-3 bg-muted/30">
                                 {car.shortDescription}
-                            </div>
+                            </DialogDescription>
                         </div>
                     )}
 
@@ -294,7 +293,7 @@ function DeleteCarModal({ car, isOpen, onClose, onSuccess }: ModalProps & { car?
                         <div className="text-2xl font-bold text-destructive">[Car is Already Deleted]</div>
                     ) : (
                         <div className="border-t pt-4 mt-2">
-                            <div className="text-destructive font-medium mb-2">Confirm Deletion</div>
+                            <DialogDescription className="text-destructive font-medium mb-2">Confirm Deletion</DialogDescription>
                             <p className="text-sm text-muted-foreground mb-4">
                                 Are you sure you want to delete this car? This action cannot be undone.
                             </p>
@@ -347,7 +346,7 @@ function BulkDeleteCars({ selectedCars, isOpen, onClose, onSuccess }: ModalProps
                     Delete {selectedCars?.length} Cars?
                 </DialogHeader>
                 <div className="border-t pt-4 mt-2">
-                    <div className="text-destructive font-medium mb-2">Confirm Deletion</div>
+                    <DialogDescription className="text-destructive font-medium mb-2">Confirm Deletion</DialogDescription>
                     <div className="text-sm text-muted-foreground mb-4">
                         Are you sure you want to delete {selectedCars?.length} cars? This action cannot be undone.
                     </div>
