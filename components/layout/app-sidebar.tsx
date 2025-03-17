@@ -192,6 +192,8 @@ export function getMenuGroups(t: (key: string) => string): Group[] {
       links: [
         { title: "vehicles", slug: "vehicles" },
         { title: "brands", slug: "brands" },
+        { title: "features", slug: "features" },
+        { title: "models", slug: "models" },
       ],
     },
     {
