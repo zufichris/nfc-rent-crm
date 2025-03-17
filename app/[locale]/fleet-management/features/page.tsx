@@ -4,6 +4,18 @@ import { getCars } from "@/lib/actions/cars";
 import { IFeature } from "@/types/features";
 import { CheckCircle, Star, Tag, Trash2 } from "lucide-react";
 import React from "react";
+
+export const metadata = {
+    title: 'Feature Management | NFC Car Rental CRM',
+    description: 'Manage vehicle features and amenities across your fleet. Track active, highlighted and deleted features.',
+    keywords: 'car rental features, vehicle amenities, fleet management, car rental CRM',
+    openGraph: {
+        title: 'Feature Management - NFC Car Rental CRM',
+        description: 'Comprehensive feature management system for vehicle fleet',
+        type: 'website',
+    },
+}
+
 const features: IFeature[] = [
     {
         id: "1",
