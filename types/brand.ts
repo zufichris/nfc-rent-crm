@@ -44,15 +44,7 @@ export interface IModel extends IBaseEntity {
     };
 }
 
-export interface IFeature extends IBaseEntity {
-    code: string;
-    slug: string;
-    category: string
-    isHighlighted: boolean
-    name?: string;
-    shortDescription?: string;
-    description?: string;
-}
+
 
 
 export interface IOwnershipDetail extends IBaseEntity {
