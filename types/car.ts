@@ -1,4 +1,5 @@
-import { IBrand, ICarHistoryRecord, IFeature, IModel, IOwnershipDetail } from "./brand";
+import { IBrand, ICarHistoryRecord, IModel, IOwnershipDetail } from "./brand";
+import { IFeature } from "./features";
 import { Locale } from "./language";
 import { IMediaItem } from "./media";
 import { RentalPricingDto } from "./pricing";
@@ -82,8 +83,8 @@ export enum CarHistoryRecordType {
     LOCATION_CHANGE = 'LOCATION_CHANGE',
     MODIFICATION = 'MODIFICATION',
     DETAILS_UPDATED = 'DETAILS_UPDATED',
-  }
-  
+}
+
 
 export interface CarTranslation {
     name: string;
