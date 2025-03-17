@@ -9,7 +9,7 @@ import { PaymentTableColumns } from "./columns"
 import { PaymentDetailModal } from "./action-modals"
 
 
-type PaymentTableProps = Readonly<{
+type PaymentTableProps = {
   payments: any[]
   tableTitle?: string
   tableName?: string
@@ -17,7 +17,7 @@ type PaymentTableProps = Readonly<{
   page: number
   limit: number
   activeFilters?: Record<string, any>
-}>
+}
 
 const paymentFilters: DataTableFilter[] = [
   { key: "isActive", name: "Show Only Active", type: "boolean" },
@@ -43,7 +43,7 @@ export function PaymentTable({
   tableTitle = "Manage Your Payments",
   limit = 10,
   activeFilters = {},
-}: PaymentTableProps) {
+}: Readonly<PaymentTableProps>) {
   const router = useRouter()
   const [selectedPayment, setSelectedPayment] = useState<any>()
   const [selectedPayments, setSelectedPayments] = useState<string[]>([])
@@ -65,9 +65,6 @@ export function PaymentTable({
         activeFilters={activeFilters}
         setSelectedItems={setSelectedPayments}
         selectedItems={selectedPayments ?? []}
-        onEdit={(payment) => {
-          router.push(`/payments/${payment.id}/edit`)
-        }}
         onView={(payment) => {
           setSelectedPayment(payment)
           setModalOpen(true)
@@ -77,7 +74,7 @@ export function PaymentTable({
         }}
         onFiltersChange={(filters) => {
           const search = new URLSearchParams(filters)
-          router.push(`/payments?${search.toString()}`)
+          router.push(`/payments/payment-list?${search.toString()}`)
         }}
         onBulkDelete={(items) => {
           console.log("Bulk delete payments:", items)
