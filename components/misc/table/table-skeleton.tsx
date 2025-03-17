@@ -1,90 +1,75 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
+import { StatCardSkeleton } from "../stat-card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export const TableSkeleton = () => {
     return (
-        <div className="space-y-4 card p-4">
-            <div className="flex justify-between items-center">
-                <Skeleton className="h-8 w-32 backdrop-blur-lg animate-pulse" />
-                <div className="flex space-x-2">
-                    <Skeleton className="h-10 w-32 backdrop-blur-lg animate-pulse" />
-                    <Skeleton className="h-10 w-32 backdrop-blur-lg animate-pulse" />
-                    <Skeleton className="h-10 w-40 backdrop-blur-lg animate-pulse" />
-                </div>
+        <div className="min-h-screen">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
             </div>
 
-            <div className="space-y-4">
-                {/* Filters skeleton */}
-                <div>
-                    <Skeleton className="h-8 w-32 mb-4 backdrop-blur-lg animate-pulse" />
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {[...Array(4)].map((_, index) => (
-                            <Skeleton
-                                key={index + 1}
-                                className="h-10 w-full backdrop-blur-lg animate-pulse"
-                            />
-                        ))}
+            <Card>
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <Skeleton className="h-6 w-32 mb-2" />
+                        <Skeleton className="h-4 w-24" />
                     </div>
-                </div>
+                    <div className="flex flex-wrap gap-2">
+                        <Skeleton className="h-9 w-24" />
+                        <Skeleton className="h-9 w-24" />
+                        <Skeleton className="h-9 w-24" />
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="rounded-md border">
+                        <div className="p-4">
+                            <div className="grid gap-4">
+                                <div className="flex justify-between items-center">
+                                    <Skeleton className="h-8 w-full max-w-md" />
+                                    <div className="flex gap-2">
+                                        <Skeleton className="h-8 w-24" />
+                                        <Skeleton className="h-8 w-24" />
+                                    </div>
+                                </div>
 
-                {/* Table skeleton */}
-                <div className="overflow-x-auto">
-                    <table className="w-full border-separate border-spacing-y-2">
-                        <thead>
-                            <tr>
-                                {[...Array(8)].map((_, index) => (
-                                    <th key={index + 1} className="px-4 py-2">
-                                        <Skeleton className="h-4 w-full backdrop-blur-lg animate-pulse" />
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {[...Array(5)].map((_, rowIndex) => (
-                                <tr key={rowIndex + 1} className="border-b border-slate-700">
-                                    <td className="px-4 py-4">
-                                        <Skeleton className="h-4 w-4 backdrop-blur-lg animate-pulse" />
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center space-x-3">
-                                            <Skeleton className="h-10 w-10 rounded-full backdrop-blur-lg animate-pulse" />
-                                            <div>
-                                                <Skeleton className="h-4 w-32 mb-2 backdrop-blur-lg animate-pulse" />
-                                                <Skeleton className="h-3 w-40 backdrop-blur-lg animate-pulse" />
+                                <div className="space-y-2">
+                                    {Array(5)
+                                        .fill(0)
+                                        .map((_, i) => (
+                                            <div key={i} className="flex justify-between items-center p-4 border rounded-md">
+                                                <div className="flex flex-col">
+                                                    <Skeleton className="h-5 w-32 mb-1" />
+                                                    <Skeleton className="h-4 w-24" />
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <Skeleton className="h-6 w-24" />
+                                                    <Skeleton className="h-6 w-16" />
+                                                    <Skeleton className="h-8 w-20" />
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    {[...Array(5)].map((_, cellIndex) => (
-                                        <td key={cellIndex + 1} className="px-4 py-4">
-                                            <Skeleton className="h-6 w-20 backdrop-blur-lg animate-pulse" />
-                                        </td>
-                                    ))}
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center space-x-2">
-                                            <Skeleton className="h-8 w-8 rounded-md backdrop-blur-lg animate-pulse" />
-                                            <Skeleton className="h-8 w-8 rounded-md backdrop-blur-lg animate-pulse" />
-                                            <Skeleton className="h-8 w-8 rounded-md backdrop-blur-lg animate-pulse" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination skeleton */}
-                <div className="flex justify-between items-center">
-                    <Skeleton className="h-4 w-48 backdrop-blur-lg animate-pulse" />
-                    <div className="flex space-x-2">
-                        {[...Array(5)].map((_, index) => (
-                            <Skeleton
-                                key={index + 1}
-                                className="h-8 w-8 backdrop-blur-lg animate-pulse"
-                            />
-                        ))}
+                                        ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+
+                    <div className="mt-4 flex justify-between items-center">
+                        <Skeleton className="h-5 w-48" />
+                        <div className="flex gap-1">
+                            {Array(5)
+                                .fill(0)
+                                .map((_, i) => (
+                                    <Skeleton key={i} className="h-8 w-8" />
+                                ))}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 };
