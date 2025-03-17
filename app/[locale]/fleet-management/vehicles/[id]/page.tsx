@@ -46,12 +46,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { formatCurrency, formatDate } from "@/utils/format"
 import { renderCarStatus } from "@/components/cars/car-table/columns"
 import { Image } from "@/components/misc/image"
-
-// Convert to a server component by removing "use client"
-export default async function CarDetailPage({ params }: { params: { id: string } }) {
-  const carId = params.id
-  const car = {
-    id: carId,
+const car = {
+    id: "carId",
     slug: "ferrari-488-gtb",
     vin: "WBADT43483G023549",
     videos: [],
@@ -209,6 +205,28 @@ export default async function CarDetailPage({ params }: { params: { id: string }
       { type: "Full Inspection", dueDate: new Date("2023-12-05"), status: "UPCOMING" },
     ],
   }
+
+  export async function generateMetadata({ params }: { params: { id: string } }) {
+    return {
+      title: `${car.name} | NFC Car Rental Fleet Management`,
+      description: `Manage details for ${car.name} - ${car.year} ${car.brand.name} ${car.model.name}. Features ${car.engineSpecs.horsepower}hp, ${car.engineSpecs.type} engine. Current status: ${car.currentStatus}.`,
+      openGraph: {
+        title: `${car.name} | NFC Car Rental Fleet Management`,
+        description: `${car.year} ${car.brand.name} ${car.model.name} - ${car.shortDescription}`,
+        images: [car.images[0].url],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${car.name} | NFC Car Rental Fleet Management`,
+        description: `${car.year} ${car.brand.name} ${car.model.name} - ${car.shortDescription}`,
+        images: [car.images[0].url],
+      }
+    }
+  }
+
+export default async function CarDetailPage({ params }: Readonly<{ params: { id: string } }>) {
+  const carId = params.id
+  
 
 
   return (
