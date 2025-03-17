@@ -57,7 +57,10 @@ function renderCarStatus(car?: ICar) {
 }
 
 const ViewCarModal = ({ car, onClose, isOpen }: Readonly<CarActionsModalProps>) => {
-    const thumbnail = car?.media?.sort((a, b) => (a?.position ?? 0) - (b?.position ?? 0))[0]
+  if(!car)
+    return null
+  
+  const thumbnail = car?.images?.find(img=>img.isThumbnail)??car?.images[0]
   
     return (
       <Dialog open={isOpen}>
@@ -91,7 +94,7 @@ const ViewCarModal = ({ car, onClose, isOpen }: Readonly<CarActionsModalProps>) 
             <div className="flex-1 text-center z-10">
               <DialogTitle className="text-2xl font-bold mb-1 text-foreground">{car?.name}</DialogTitle>
               <div className="text-sm flex items-center justify-center gap-1 text-muted-foreground font-medium">
-                {car?.year} {car?.model}
+                {car?.year} {car?.model?.name??car?.model?.code}
               </div>
               <div className="mt-3">{renderCarStatus(car)}</div>
             </div>
@@ -189,9 +192,9 @@ const ViewCarModal = ({ car, onClose, isOpen }: Readonly<CarActionsModalProps>) 
               <div className="grid gap-3">
                 <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Features</Label>
                 <div className="flex flex-wrap gap-2 bg-accent/10 p-3 rounded-md border">
-                  {car.features.map((feature: string, index: number) => (
-                    <Badge key={index + feature} variant="outline" className="bg-background/80">
-                      {feature}
+                  {car.features.map((feature, index) => (
+                    <Badge key={index + feature.code} variant="outline" className="bg-background/80">
+                      {feature.name??feature.code}
                     </Badge>
                   ))}
                 </div>
@@ -229,8 +232,8 @@ const ViewCarModal = ({ car, onClose, isOpen }: Readonly<CarActionsModalProps>) 
   }
 
 function DeleteCarModal({ car, isOpen, onClose, onSuccess }: ModalProps & { car?: ICar }) {
+
     const [isDeleting, setIsDeleting] = useState(false)
-    const thumbnail = car?.media?.find(m => m.isThumbnail) || car?.media?.[0]
 
     const handleDelete = async () => {
         if (!car) return
@@ -250,8 +253,11 @@ function DeleteCarModal({ car, isOpen, onClose, onSuccess }: ModalProps & { car?
             onClose()
         }
     }
-
     if (!car) return null
+
+
+    const thumbnail = car?.images?.find(m => m.isThumbnail) || car.images?.[0]
+
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -270,7 +276,7 @@ function DeleteCarModal({ car, isOpen, onClose, onSuccess }: ModalProps & { car?
                     </div>
                     <div className="flex-1">
                         <DialogTitle className="text-xl mb-1">{car?.name || "Unnamed Car"}</DialogTitle>
-                        <div className="text-sm text-muted-foreground">{car.year} {car.model}</div>
+                        <div className="text-sm text-muted-foreground">{car.year} {car.model?.name??car?.model?.code}</div>
                         <div className="mt-2">{renderCarStatus(car)}</div>
                     </div>
                 </DialogHeader>
