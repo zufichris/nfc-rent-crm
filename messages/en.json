@@ -16,6 +16,8 @@
                     "analytics": "Analytics",
                     "vehicles": "Vehicles",
                     "brands": "Brands",
+                    "features": "Car Features",
+                    "models": "Available Models",
                     "booking-list": "Booking List",
                     "transactions": "Transactions",
                     "refunds": "Refunds",
