@@ -23,6 +23,7 @@ import { renderStatus } from "../../misc/table/data-table";
 import { Delete, Pencil, UserPlus } from "lucide-react";
 import { UserAvatar } from "../user-avatar";
 import { Switch } from "@/components/ui/switch";
+import Link from "next/link";
 
 export type ActionTypes = "view" | "create" | "delete" | "edit" | "bulk delete";
 
@@ -194,6 +195,11 @@ function ViewUserModal({
                 </div>
                 <DialogFooter>
                     <Button onClick={onClose}>Close</Button>
+                    <Link href={`/customer-management/customers/${user.id}`}>
+                        <Button>
+                            Full Details
+                        </Button>
+                    </Link>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
