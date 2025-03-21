@@ -1,3 +1,5 @@
+import { env } from "@/config/env";
+
 export interface IBaseEntity {
     id: string;
     isActive: boolean
@@ -10,12 +12,12 @@ export interface IBaseEntity {
 export type NumberFilter = {
     min?: number
     max?: number
-  }
-  
- export type DateFilter = {
+}
+
+export type DateFilter = {
     start?: number | string | Date
     end?: number | string | Date
-  }
+}
 
 export type IBaseFilters = Partial<{
     sortBy: string,
@@ -60,6 +62,7 @@ export class BaseService {
         PATCH: "PATCH",
         DELETE: "DELETE"
     }
+    apiUrl = env.apiUrl
     handleError({
         message = "An Unexpected Error Occurred",
         status = 500,
