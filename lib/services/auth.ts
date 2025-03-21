@@ -14,7 +14,7 @@ export class AuthService extends BaseService {
         try {
             await promisify(setTimeout)(10)
             const token = await getToken("access_token")
-            if(!token)
+            if (!token)
                 throw Error("Invalid Token")
             return ({
                 success: true,
@@ -28,18 +28,12 @@ export class AuthService extends BaseService {
 
     async login(data: any): Promise<IResponse<IUser & { accessToken: string }>> {
         try {
-            // const res = await request<IResponse<IUser & { accessToken: string }>>(`${this.basePath}/login`, {
-            //     method: this.methods.POST,
-            //     body: JSON.stringify({ ...data, loginType: "email" })
-            // })
-            await promisify(setTimeout)(10)
-            if (data.email !== "admin@gmail.com")
-                throw new Error("Invalid Email")
-            return ({
-                success: true,
-                data: { ...generateFakeUser(), accessToken: "token" },
-                message: "Sign In Successful"
+            const res = await request<IResponse<IUser & { accessToken: string }>>(`${this.basePath}/login`, {
+                method: this.methods.POST,
+                body: JSON.stringify({ ...data })
             })
+            console.log(res)
+            return res
         } catch (error: unknown) {
             return this.handleError({})
         }
@@ -63,4 +57,4 @@ export class AuthService extends BaseService {
 }
 
 
-export const authService = new AuthService("/auth")
+export const authService = new AuthService("/api/v1/auth")
