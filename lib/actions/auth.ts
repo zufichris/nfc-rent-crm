@@ -18,9 +18,9 @@ export async function login(data: {
     password?: string;
 }) {
     const res = await authService.login(data)
-    // if (res.success) {
-    //     await setCookie("access_token", res.data.accessToken)
-    // }
+    if (res.success) {
+        await setCookie("access_token", res.data.accessToken)
+    }
     return res
 }
 
