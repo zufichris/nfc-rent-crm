@@ -27,10 +27,15 @@ export const SignInForm = () => {
             email,
             password,
         })
-        console.log(res)
         if (res.success) {
-            toast(res.message)
-            router.push("/")
+            if (res.data.requiresOtp && res.data.token) {
+                router.push(`/verify?token=${res.data.token}&email=${email}`)
+            } else if (res.data.accessToken) {
+                toast.success(res.message)
+                router.push('/')
+            } else {
+                setMessage("An error occurred")
+            }
         } else {
             setMessage(res.message)
         }
