@@ -4,7 +4,13 @@ import { IUser } from "@/types/user";
 import { request } from "@/utils/functions";
 import { promisify } from "util";
 import { getToken } from "../actions/auth";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
+type Token = {
+    value: string
+    expireAt: Date
+}
 export class AuthService extends BaseService {
     constructor(private readonly basePath: string) {
         super()
@@ -26,13 +32,38 @@ export class AuthService extends BaseService {
         }
     }
 
-    async login(data: any): Promise<IResponse<IUser & { accessToken: string }>> {
+    async login(data: { email?: string, password: string }) {
         try {
-            const res = await request<IResponse<IUser & { accessToken: string }>>(`${this.basePath}/login`, {
+            const res = await request<IResponse<IUser & { accessToken?: Token, refreshToken: Token, token?: string, requiresOtp?: boolean }>>(`${this.basePath}/login`, {
                 method: this.methods.POST,
                 body: JSON.stringify({ ...data })
             })
-            console.log(res)
+            return res
+        } catch (error: unknown) {
+            return this.handleError({})
+        }
+    }
+    async requestOtp(email: string) {
+        try {
+            const res = await request<IResponse<{ token: string, sent: boolean }>>(`${this.basePath}/request-otp`, {
+                method: this.methods.POST,
+                body: JSON.stringify({ email, type: "email" })
+            })
+            return res
+        } catch (error: unknown) {
+            return this.handleError({})
+        }
+    }
+    async verifyOtp(data: {
+        email: string;
+        code: string;
+        token: string;
+    }) {
+        try {
+            const res = await request<IResponse<IUser & { accessToken?: Token, refreshToken: Token, token?: string }>>(`${this.basePath}/verify-otp`, {
+                method: this.methods.POST,
+                body: JSON.stringify({ ...data })
+            })
             return res
         } catch (error: unknown) {
             return this.handleError({})
