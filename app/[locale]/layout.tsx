@@ -12,6 +12,7 @@ import { routing } from "@/i18n/routing"
 import { notFound } from "next/navigation"
 import { getMessages } from "next-intl/server"
 import { TopLoader } from "@/components/layout/top-loader"
+import { cookies } from "next/headers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -33,14 +34,15 @@ export default async function RootLayout({
   const isRtl = locale === "ar"
 
   const messages = await getMessages();
-  const res = await getLoggedInUser()
+  const cookieStore = await cookies()
+  const isAuthenticated = cookieStore.get('access_token')?.value;
   return (
     <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className={`${inter.className} bg-foreground/10 dark:bg-background/55 bg-opacity-50 backdrop-blur-md`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <TopLoader />
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
-            {res.success ? <Shell>{children}</Shell> : children}
+            {isAuthenticated ? <Shell>{children}</Shell> : children}
             <Toaster closeButton visibleToasts={2} className="card" />
           </ThemeProvider>
         </NextIntlClientProvider>
