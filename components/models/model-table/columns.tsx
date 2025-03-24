@@ -1,5 +1,5 @@
 import { DataTableColumn, renderStatus } from "@/components/misc/table/data-table"
-import type { IModel } from "@/types/brand"
+import { IModel } from "@/types/model"
 import { formatDate } from "@/utils/format"
 
 export const ModelTableColumns: DataTableColumn[] = [
@@ -21,17 +21,17 @@ export const ModelTableColumns: DataTableColumn[] = [
         render: (value, item: IModel) => (
             <div className="flex items-center gap-2">
                 {item.brand?.logo && (
-                    <img src={item.brand.logo || "/placeholder.svg"} alt={item.brand?.name} className="h-6 w-6 object-contain" />
+                    <img src={item.brand.logo} alt={item.brand?.name} className="h-6 w-6 object-contain" />
                 )}
-                <span>{value}</span>
+                <span>{value ?? "Not Available"}</span>
             </div>
         ),
     },
     {
         key: "shortDescription",
         name: "Description",
-        render: (value) => (
-            <div className="max-w-md truncate">{value || <span className="text-muted-foreground">No description</span>}</div>
+        render: (value, item: IModel) => (
+            <div className="max-w-md truncate">{value || item.description || "No description"}</div>
         ),
     },
     {
