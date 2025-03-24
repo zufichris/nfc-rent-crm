@@ -20,6 +20,21 @@ export async function request<T>(path: string, init?: RequestInit, baseUrl: stri
   }
 }
 
+export function stringifyFilters(filters: Record<string, unknown>): string {
+  const stringifiedFilters = Object.entries(filters ?? {}).reduce((acc, [key, value]) => {
+    if (value) {
+      return ({
+        ...acc,
+        [key]: String(value)
+      })
+    } else {
+      return acc
+    }
+  }, {})
+  const query = new URLSearchParams(stringifiedFilters).toString()
+  return query
+}
+
 export function generateSlug(name: string) {
   const slug = name
     .toLowerCase()
