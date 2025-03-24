@@ -5,7 +5,7 @@ export enum DriverType {
     GCC = 'GCC',
     TOURIST = 'TOURIST',
     RESIDENT = 'RESIDENT'
-  }
+}
 
 export interface IUser extends IBaseEntity {
     fullName: string
@@ -19,7 +19,7 @@ export interface IUser extends IBaseEntity {
     roles: string[];
 }
 
-export interface IDriver extends IBaseEntity{
+export interface IDriver extends IBaseEntity {
     user: IUser;
     bookings: IBooking[];
     firstName: string;
