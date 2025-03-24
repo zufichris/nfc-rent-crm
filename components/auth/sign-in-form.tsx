@@ -1,14 +1,22 @@
-'use client'
-import { login } from '@/lib/actions/auth'
-import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
-import { toast } from 'sonner'
+"use client"
+import { login } from "@/lib/actions/auth"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CardContent, CardFooter } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Lock, Mail, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import type React from "react"
+
+import { useEffect } from "react"
+import { ArrowRight } from "lucide-react"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { requestOtp, verifyOtp } from "@/lib/actions/auth"
 
 export const SignInForm = () => {
     const [email, setEmail] = useState("")
@@ -18,6 +26,8 @@ export const SignInForm = () => {
     const [rememberMe, setRememberMe] = useState(false)
     const [message, setMessage] = useState("")
     const router = useRouter()
+    const [showVerificationModal, setShowVerificationModal] = useState(false)
+    const [verificationToken, setVerificationToken] = useState("")
 
     const handleSubmit = async (e?: React.FormEvent) => {
         e?.preventDefault()
@@ -29,10 +39,11 @@ export const SignInForm = () => {
         })
         if (res.success) {
             if (res.data.requiresOtp && res.data.token) {
-                router.push(`/verify?token=${res.data.token}&email=${email}`)
+                setVerificationToken(res.data.token)
+                setShowVerificationModal(true)
             } else if (res.data.accessToken) {
                 toast.success(res.message)
-                router.push('/')
+                router.push("/")
             } else {
                 setMessage("An error occurred")
             }
@@ -40,6 +51,12 @@ export const SignInForm = () => {
             setMessage(res.message)
         }
         setIsLoading(false)
+    }
+
+    const handleVerificationSuccess = () => {
+        setShowVerificationModal(false)
+        toast.success("Verification successful")
+        router.push("/")
     }
     return (
         <form onSubmit={handleSubmit}>
@@ -86,14 +103,8 @@ export const SignInForm = () => {
                             className="absolute right-1 top-1.5 h-8 w-8 text-muted-foreground hover:text-foreground"
                             onClick={() => setShowPassword(!showPassword)}
                         >
-                            {showPassword ? (
-                                <EyeOff className="h-4 w-4" />
-                            ) : (
-                                <Eye className="h-4 w-4" />
-                            )}
-                            <span className="sr-only">
-                                {showPassword ? "Hide password" : "Show password"}
-                            </span>
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                         </Button>
                     </div>
                 </div>
@@ -103,7 +114,7 @@ export const SignInForm = () => {
                         id="remember"
                         checked={rememberMe}
                         onCheckedChange={(checked) => {
-                            if (typeof checked === 'boolean') {
+                            if (typeof checked === "boolean") {
                                 setRememberMe(checked)
                             }
                         }}
@@ -139,9 +150,7 @@ export const SignInForm = () => {
                         <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">
-                            Or continue with
-                        </span>
+                        <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                     </div>
                 </div>
 
@@ -169,6 +178,208 @@ export const SignInForm = () => {
                     </Button>
                 </div>
             </CardFooter>
+            {/* Verification Modal */}
+            <Dialog open={showVerificationModal} onOpenChange={setShowVerificationModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Verification Required</DialogTitle>
+                        <DialogDescription>
+                            Enter the 6-digit code sent to your email: <span className="text-primary underline">{email}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <VerifyOtp token={verificationToken} email={email} onSuccess={handleVerificationSuccess} inModal={true} />
+                    </div>
+                </DialogContent>
+            </Dialog>
         </form>
     )
 }
+
+export const VerifyOtp = ({
+    token,
+    email,
+    onSuccess,
+    inModal = false,
+}: {
+    token: string
+    email: string
+    onSuccess?: () => void
+    inModal?: boolean
+}) => {
+    const length = 6
+    const router = useRouter()
+    const [otp, setOtp] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isResending, setIsResending] = useState(false)
+    const [timer, setTimer] = useState(30)
+    const [timerActive, setTimerActive] = useState(true)
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout | null = null
+        if (timerActive) {
+            interval = setInterval(() => {
+                setTimer((prevTimer) => {
+                    if (prevTimer <= 1) {
+                        setTimerActive(false)
+                        clearInterval(interval!)
+                        return 0
+                    }
+                    return prevTimer - 1
+                })
+            }, 1000)
+        }
+
+        return () => {
+            if (interval) clearInterval(interval)
+        }
+    }, [timerActive])
+
+    useEffect(() => {
+        if (otp.length === length && !isSubmitting) {
+            handleSubmit()
+        }
+    }, [otp])
+
+    const handleSubmit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault()
+
+        if (otp.length !== length) {
+            toast("Please enter all 6 digits of your verification code.")
+            return
+        }
+
+        if (isSubmitting) return
+        setIsSubmitting(true)
+
+        const res = await verifyOtp({ email, code: otp, token })
+        if (res.success && res.data.accessToken && res.data.refreshToken) {
+            toast("Your account has been verified successfully.")
+            if (onSuccess) {
+                onSuccess()
+            } else {
+                router.push("/")
+            }
+        } else {
+            toast(res.message)
+            setOtp("")
+        }
+        setIsSubmitting(false)
+    }
+
+    const handleResendOTP = async () => {
+        setIsResending(true)
+        const res = await requestOtp(email)
+        if (res.success && res.data.sent) {
+            toast("A new verification code has been sent to your email/phone.")
+            setTimer(30)
+            setTimerActive(true)
+        } else {
+            toast("An error occurred. Please try again later.")
+        }
+        setIsResending(false)
+    }
+
+    if (inModal) {
+        return (
+            <form onSubmit={handleSubmit}>
+                <div className="space-y-4">
+                    <div className="flex justify-center py-4">
+                        <InputOTP maxLength={6} value={otp} onChange={(value: string) => setOtp(value.trim())}>
+                            <InputOTPGroup>
+                                {new Array(length).fill(0).map((_, index) => (
+                                    <InputOTPSlot className="font-black text-2xl p-6" index={index} key={_ + index + 1} />
+                                ))}
+                            </InputOTPGroup>
+                        </InputOTP>
+                    </div>
+                    <div className="text-center text-sm text-muted-foreground">
+                        Didn't receive a code?{" "}
+                        {timerActive ? (
+                            <span>Resend in {timer}s</span>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant={"ghost"}
+                                onClick={handleResendOTP}
+                                disabled={isResending || timerActive}
+                                className="text-primary hover:underline focus:outline-none disabled:opacity-50"
+                            >
+                                Resend code
+                            </Button>
+                        )}
+                    </div>
+                    <Button type="submit" className="w-full" disabled={otp.length !== 6 || isSubmitting}>
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Verifying...
+                            </>
+                        ) : (
+                            <>
+                                Verify
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </>
+                        )}
+                    </Button>
+                </div>
+            </form>
+        )
+    }
+
+    return (
+        <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl font-bold text-center">Verification Required</CardTitle>
+                <CardDescription className="text-center">
+                    Enter the 4-digit code sent to your email: <span className="text-primary underline">{email}</span>
+                </CardDescription>
+            </CardHeader>
+            <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-4">
+                    <div className="flex justify-center py-4">
+                        <InputOTP maxLength={6} value={otp} onChange={(value: string) => setOtp(value.trim())}>
+                            <InputOTPGroup>
+                                {new Array(length).fill(0).map((_, index) => (
+                                    <InputOTPSlot className="font-black text-2xl p-6" index={index} key={_ + index + 1} />
+                                ))}
+                            </InputOTPGroup>
+                        </InputOTP>
+                    </div>
+                    <div className="text-center text-sm text-muted-foreground">
+                        Didn't receive a code?{" "}
+                        {timerActive ? (
+                            <span>Resend in {timer}s</span>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant={"ghost"}
+                                onClick={handleResendOTP}
+                                disabled={isResending || timerActive}
+                                className="text-primary hover:underline focus:outline-none disabled:opacity-50"
+                            >
+                                Resend code
+                            </Button>
+                        )}
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" className="w-full" disabled={otp.length !== 6 || isSubmitting}>
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Verifying...
+                            </>
+                        ) : (
+                            <>
+                                Verify
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </>
+                        )}
+                    </Button>
+                </CardFooter>
+            </form>
+        </Card>
+    )
+}
+
