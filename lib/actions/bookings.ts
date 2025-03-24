@@ -1,7 +1,7 @@
 'use server'
 
 import { GetBookingsResponse, GetBookingsFilters, IBooking } from "@/types/bookings"
-import { bookingService } from "../services/bookings"
+import { bookingService } from "../services/booking"
 
 export async function getBookingById(id: number|string) {
     const res = await bookingService.getBookingById(id as number)
