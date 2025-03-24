@@ -1,5 +1,5 @@
 import { IBrand, ICarHistoryRecord, IModel, IOwnershipDetail } from "./brand";
-import { IFeature } from "./features";
+import { IFeature } from "./feature";
 import { Locale } from "./language";
 import { IMediaItem } from "./media";
 import { RentalPricingDto } from "./pricing";
@@ -163,7 +163,7 @@ export interface ICar extends IBaseEntity {
     doors: number;
     seats: number;
 
-    images: IMediaItem[];
+    images: ICarMedia[];
 
 
     videos: ICarMedia[];
