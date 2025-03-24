@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { IFeature } from "@/types/features"
+import { IFeature } from "@/types/feature"
 import { DataTable } from "@/components/misc/table/data-table"
 import { FeatureDetailModal } from "./action-modals"
 import { FeatureTableColumns } from "./columns"
