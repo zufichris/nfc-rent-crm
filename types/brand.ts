@@ -30,19 +30,7 @@ export interface IBrand extends IBaseEntity {
 }
 
 
-export interface IModel extends IBaseEntity {
-    code: string;
-    slug: string
-    brand?: IBrand;
-    name?: string;
-    shortDescription?: string;
-    description?: string;
-    metadata?: {
-        title?: string;
-        description?: string;
-        tags?: string[];
-    };
-}
+
 
 
 
