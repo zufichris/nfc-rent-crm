@@ -1,8 +1,7 @@
 import { generateFakeBrand } from "@/mock.data";
 import { GetBrandsFilters, GetBrandsResponse, IBrand } from "@/types/brand";
 import { BaseService, IResponse, IResponsePaginated } from "@/types/shared";
-import { request } from "@/utils/functions";
-import { promisify } from "util";
+import { request, stringifyFilters } from "@/utils/functions";
 
 export class BrandsService extends BaseService {
     brand: IBrand = generateFakeBrand()
@@ -11,35 +10,24 @@ export class BrandsService extends BaseService {
         super()
     }
 
-    async getBrandById(id: number): Promise<IResponse<IBrand>> {
+    async getBrandById(id: string): Promise<IResponse<IBrand>> {
         try {
-            // const res = await request<IResponse<IBrand>>(`${this.basePath}/${id}`)
-            // return res
-            await promisify(setTimeout)(10)
-            return ({
-                success: true,
-                message: "Brand Retrieved",
-                data: this.brand
-            })
+            const res = await request<IResponse<IBrand>>(`${this.basePath}/${id}`)
+            return res
         } catch (error) {
             return this.handleError({})
         }
     }
     async getBrands(filters?: GetBrandsFilters): Promise<GetBrandsResponse> {
         try {
-            // const res = await request<IResponsePaginated<IBrand>>(`${this.basePath}?${query}`)
-            // return res
-            await promisify(setTimeout)(10)
+            const query = stringifyFilters(filters ?? {})
+
+            const res = await request<IResponsePaginated<IBrand>>(`${this.basePath}?${query}`)
 
             return ({
-                success: true,
-                message: "Brands Retrieved",
-                data: this.brands,
-                limit: this.brands.length,
-                page: 1,
-                total: this.brands.length,
-                activeCount: this.brands.filter(x => x.isActive).length,
-                deletedCount: this.brands.filter(x => x.isDeleted).length,
+                ...res,
+                activeCount: res.success ? res.data.filter(x => x.isActive).length : 0,
+                deletedCount: res.success ? res.data.filter(x => x.isDeleted).length : 0,
             })
         } catch (error) {
             return this.handleError({})
@@ -48,4 +36,4 @@ export class BrandsService extends BaseService {
 
 }
 
-export const brandsService = new BrandsService('/brands')
+export const brandsService = new BrandsService('/api/v1/cars/brands')
