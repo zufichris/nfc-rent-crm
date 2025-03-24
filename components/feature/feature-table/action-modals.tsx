@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star } from "lucide-react"
 import { formatDate } from "@/utils/format"
-import { IFeature } from "@/types/features"
+import { IFeature } from "@/types/feature"
 import { cn } from "@/lib/utils"
 import { getVariant } from "@/components/theme/variants"
 
