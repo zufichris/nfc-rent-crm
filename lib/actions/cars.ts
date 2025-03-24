@@ -11,12 +11,12 @@ export async function getCars({
     limit = 10,
     ...filters
 }: GetCarsFilter) {
-    const res=await carsService.getCars()
+    const res = await carsService.getCars({ page, limit, ...filters })
     return res
 }
 
-export async function getCar(id: string){
-    const res =await carsService.getCarById(0)
+export async function getCar(id: string) {
+    const res = await carsService.getCarById(id)
     return res
 }
 
