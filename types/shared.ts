@@ -54,7 +54,8 @@ export type IResponse<Data = unknown> = ResSuccess<Data> | ResError
 
 export type IResponsePaginated<TData = unknown> = ResPaginated<TData> | ResError
 
-
+export type DateInputType = string | Date;
+export type NonEmptyArray<T> = [T, ...T[]];
 export class BaseService {
     methods = {
         POST: "POST",
