@@ -1,9 +1,10 @@
-import { IBrand, ICarHistoryRecord, IModel, IOwnershipDetail } from "./brand";
+import { IBrand } from "./brand";
 import { IFeature } from "./feature";
 import { Locale } from "./language";
 import { IMediaItem } from "./media";
-import { RentalPricingDto } from "./pricing";
-import { IBaseEntity, IBaseFilters, IResponsePaginated } from "./shared";
+import { IModel } from "./model";
+import { Currencies, RentalPricingDto } from "./pricing";
+import { DateInputType, IBaseEntity, IBaseFilters, IResponsePaginated, NonEmptyArray } from "./shared";
 
 
 export enum CarCategory {
@@ -85,8 +86,7 @@ export enum CarHistoryRecordType {
     DETAILS_UPDATED = 'DETAILS_UPDATED',
 }
 
-
-export interface CarTranslation {
+export interface ICarTranslation {
     name: string;
     shortDescription?: string;
     description?: string;
@@ -97,12 +97,11 @@ export interface CarTranslation {
     interiorColor?: { name: string; code?: string };
 }
 
-export interface CarTranslationDTO extends CarTranslation {
+export interface CarTranslationDTO extends ICarTranslation {
     locale: Locale;
 }
 
-
-export interface EngineSpecs {
+export interface ICarEngineSpecs {
     type: string;
     horsepower: number;
     torque: number;
@@ -113,7 +112,7 @@ export interface EngineSpecs {
     topSpeed: number;
 }
 
-export interface Dimensions {
+export interface ICarDimensions {
     length: number;
     width: number;
     height: number;
@@ -121,7 +120,7 @@ export interface Dimensions {
     cargoCapacity: number;
 }
 
-export interface CarOwnership {
+export interface ICarOwnership {
     ownerId: string;
     ownerType: 'User' | 'Company';
     percentage: number;
@@ -136,94 +135,59 @@ export interface ICarMedia extends IMediaItem {
     description?: string;
     position?: number;
 }
-export interface CarDocumentDto extends IBaseEntity {
-    type?: CarDocumentType;
-    title?: string;
-    fileUrl?: string;
-    issueDate?: Date;
+export interface ICarDocument extends IBaseEntity {
+    type: CarDocumentType;
+    title: string;
+    fileUrl: string;
+    issueDate: Date;
     expiryDate?: Date;
-    isVerified?: boolean;
+    isVerified: boolean;
     verificationDate?: Date;
 }
-
-export type DateInputType = string | Date;
-export type NonEmptyArray<T> = [T, ...T[]];
-
+export interface ICarHistoryRecord extends IBaseEntity {
+    type: CarHistoryRecordType;
+    date: Date;
+    description: string;
+    mileageAtTime?: number;
+    cost?: {
+        amount: number;
+        currency: string;
+    };
+    performedBy?: string;
+    documents?: ICarDocument[];
+    nextScheduledDate?: Date;
+}
 export interface ICar extends IBaseEntity {
     slug: string;
     vin: string;
     blockchainId?: string;
     year: number;
-
     category: CarCategory;
-
     fuelType: FuelType;
-
     transmission: TransmissionType;
     doors: number;
     seats: number;
-
     images: ICarMedia[];
-
-
-    videos: ICarMedia[];
-
-
+    videos: ICarMedia[]
     virtualTourMedia: ICarMedia[];
-
     metaverseAssetId?: string;
-
     currentStatus: CarStatus;
-
     listingType: CarListingType[];
     acquisitionDate?: string | Date;
     mileage: number;
-
     condition: CarCondition;
-
     inspectionStatus: CarInspectionStatus;
     lastInspectionDate?: Date | string;
     nextInspectionDueDate?: string;
-
-
     brand?: IBrand;
-
-
     model?: IModel;
-
-
     features?: IFeature[];
-
-
-    rentalPricings: RentalPricingDto[];
-
-
-    documents: CarDocumentDto[];
-
-
-    ownershipDetails: IOwnershipDetail[];
+    rentalPricings: RentalPricingDto[]
+    documents: ICarDocument[];
+    ownershipDetails: ICarOwnership[];
     history: ICarHistoryRecord[];
-
-
-    engineSpecs: {
-        type: string;
-        horsepower: number;
-        torque: number;
-        displacement?: number;
-        batteryCapacity?: number;
-        range?: number;
-        acceleration: number;
-        topSpeed: number;
-    };
-
-
-    dimensions: {
-        length: number;
-        width: number;
-        height: number;
-        weight: number;
-        cargoCapacity: number;
-    };
+    engineSpecs: ICarEngineSpecs;
+    dimensions: ICarDimensions;
     name: string;
     shortDescription?: string;
     description?: string;
@@ -236,8 +200,7 @@ export interface ICar extends IBaseEntity {
     interiorColor?: { name: string; code?: string };
 }
 
-
-export interface CreateCarDTO {
+interface ICreateCarDTO {
     vin: string;
     blockchainId?: string;
     year: number;
@@ -255,19 +218,17 @@ export interface CreateCarDTO {
     inspectionStatus: string;
     lastInspectionDate?: DateInputType;
     nextInspectionDueDate?: DateInputType;
-    engineSpecs: EngineSpecs;
-    dimensions: Dimensions;
+    engineSpecs: ICarEngineSpecs,
+    dimensions: ICarDimensions;
     media: ICarMedia[];
     model: string;
     features?: string[];
     rentalPricings?: RentalPricingDto[];
-    documents?: CarDocumentDto[];
-    owner?: CarOwnership;
+    documents?: ICarDocument[];
+    owner?: ICarOwnership;
     translations: NonEmptyArray<CarTranslationDTO>;
+    securityDeposit: { currency: Currencies; amount: number };
 }
-
-export interface UpdateCarDTO extends Partial<CreateCarDTO> { }
-
 export type GetCarsFilter = Partial<{
     isActive: boolean;
     isDeleted: boolean;
