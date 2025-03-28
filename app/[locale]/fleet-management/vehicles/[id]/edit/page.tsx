@@ -2,12 +2,16 @@ import { notFound } from "next/navigation"
 import { getCar } from "@/lib/actions/cars"
 import { CarForm } from "@/components/cars/car-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import ErrorPage from "@/app/[locale]/error"
 export default async function EditCarPage({ params }: Readonly<{ params: Promise<{ id: string }> }>) {
   const { id } = await params
   const res = await getCar(id)
 
   if (!res.success) {
-    notFound()
+    return <ErrorPage error={{
+      message:res.message,
+      status:res.status
+    }}/>
   }
 
   return (
@@ -19,7 +23,7 @@ export default async function EditCarPage({ params }: Readonly<{ params: Promise
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <CarForm car={res.data} />
+        <CarForm existingCar={res.data} />
       </CardContent>
     </Card>
   )
