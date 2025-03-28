@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress"
 
 export default function EditCarLoading() {
     return (
-        <Card className="container py-10">
+        <Card className="py-10">
             <CardHeader className="mb-8">
                 <CardTitle className="text-3xl font-bold tracking-tight">Edit Car</CardTitle>
                 <CardDescription className="text-muted-foreground">
@@ -12,7 +12,7 @@ export default function EditCarLoading() {
                 </CardDescription>
             </CardHeader>
 
-            <div className="max-w-4xl mx-auto py-8">
+            <div className="py-8 mx-4">
                 <div className="space-y-12">
                     <div className="space-y-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
