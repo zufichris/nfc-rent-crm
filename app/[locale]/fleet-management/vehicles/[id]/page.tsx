@@ -43,6 +43,8 @@ import { Image } from "@/components/misc/image";
 import { ICar } from "@/types/car";
 import { getCar } from "@/lib/actions/cars";
 import { renderCarStatus } from "@/components/cars/car-table/columns";
+import { CarActionsModal } from "@/components/cars/car-table/action-modals";
+import ErrorPage from "@/app/[locale]/error";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -81,7 +83,10 @@ export default async function CarDetailPage({
   const { id } = await params;
   const res = await getCar(id);
   if (!res.success) {
-    return <div>{res.message}</div>;
+    return <ErrorPage error={{
+      message:res.message,
+      status:res.status
+    }}/>
   }
   const car = {
     ...res.data,
@@ -101,7 +106,6 @@ export default async function CarDetailPage({
   );
 }
 
-// Header Component
 function Header({ car }: { car: ICar }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -110,20 +114,12 @@ function Header({ car }: { car: ICar }) {
         {renderCarStatus(car)}
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline">
-          <Printer className="h-4 w-4 mr-2" />
-          Print
-        </Button>
         <Link href={`/fleet-management/vehicles/${car.id}/edit`}>
           <Button>
             <Pencil className="h-4 w-4 mr-2" />
             Edit Car
           </Button>
         </Link>
-        <Button variant="destructive">
-          <Trash className="h-4 w-4 mr-2" />
-          Delete Car
-        </Button>
       </div>
     </div>
   );
@@ -143,7 +139,6 @@ function MainContent({ car, thumbnail }: { car: ICar; thumbnail: ICar["images"][
 
 
 
-// Car Info Card
 function CarInfoCard({ car, thumbnail }: { car: ICar; thumbnail: ICar["images"][0] }) {
   return (
     <Card className="overflow-hidden">
@@ -231,7 +226,6 @@ function CarInfoCard({ car, thumbnail }: { car: ICar; thumbnail: ICar["images"][
   );
 }
 
-// Stat Item Component
 function StatItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex flex-col items-center p-3 border rounded-lg">
@@ -242,7 +236,6 @@ function StatItem({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-// Performance Stats Card
 function PerformanceStatsCard({ engineSpecs }: { engineSpecs: ICar["engineSpecs"] }) {
   return (
     <Card>
@@ -264,7 +257,6 @@ function PerformanceStatsCard({ engineSpecs }: { engineSpecs: ICar["engineSpecs"
   );
 }
 
-// Rental Performance Card
 function RentalPerformanceCard({ car }: { car: ICar }) {
   return (
     <Card>
@@ -312,7 +304,6 @@ function RentalPerformanceCard({ car }: { car: ICar }) {
   );
 }
 
-// Sidebar Component
 function Sidebar({ car }: { car: ICar }) {
   return (
     <div className="space-y-6">
@@ -324,7 +315,6 @@ function Sidebar({ car }: { car: ICar }) {
 
 
 
-// Vehicle Status Card
 function VehicleStatusCard({ car }: { car: ICar }) {
   return (
     <Card>
@@ -361,7 +351,6 @@ function VehicleStatusCard({ car }: { car: ICar }) {
   );
 }
 
-// Inspection Info Card
 function InspectionInfoCard({ car }: { car: ICar }) {
   return (
     <Card>
@@ -400,7 +389,6 @@ function InspectionInfoCard({ car }: { car: ICar }) {
   );
 }
 
-// Tabs Component
 function CarTabs({ car }: { car: ICar }) {
   return (
     <Tabs defaultValue="specs" className="mt-6">
@@ -434,7 +422,6 @@ function CarTabs({ car }: { car: ICar }) {
   );
 }
 
-// Specifications Tab
 function SpecificationsTab({ car }: { car: ICar }) {
   return (
     <Card>
