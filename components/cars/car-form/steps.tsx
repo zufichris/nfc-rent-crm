@@ -1,46 +1,56 @@
+"use client"
+
+import type React from "react"
+
 import { Card, CardContent } from "@/components/ui/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Image, ImageUpload } from "@/components/misc/image"
 import { Label } from "@/components/ui/label"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { CarCategory, CarInspectionStatus, CarListingType, CarStatus, CarTranslationDTO, FuelType, ICarMedia, TransmissionType, CarCondition, CarDocumentType, CarHistoryRecordType } from "@/types/car"
+import {
+    CarCategory,
+    CarInspectionStatus,
+    CarListingType,
+    CarStatus,
+    FuelType,
+    type ICarMedia,
+    TransmissionType,
+    CarCondition,
+    CarDocumentType,
+} from "@/types/car"
 import { CarModelsSelect } from "@/components/models/models-select"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CarPricingUnit, Currencies, RentalPricingDto } from "@/types/pricing"
+import { CarPricingUnit, Currencies, type RentalPricingDto } from "@/types/pricing"
 import { CarFeaturesSelect } from "@/components/feature/car-features-input"
-import { Languages, Locale } from "@/types/language"
+import { Languages, type Locale } from "@/types/language"
 import { Badge } from "@/components/ui/badge"
-import { CarFormReturnType } from "."
+import type { CarFormReturnType } from "."
+import { MediaType } from "@/types/media"
+import type { CarRentalPricingSchema, CarTranslationsSchema } from "./schema"
+import type { z } from "zod"
+import { ColorInput } from "@/components/misc/color-input"
+import { TagInput } from "@/components/misc/tag"
+import { Path } from "react-hook-form"
 
-
-
-export function CarFormSteps({ currentStep, form }: Readonly<{ form: CarFormReturnType, currentStep: number }>) {
-    switch (currentStep) {
-        case 0:
-            return <BasicDetails form={form} />
-        case 1:
-            return <Specifications form={form} />
-        case 2:
-            return <Media form={form} />
-        case 3:
-            return <FeaturesAndPricing form={form} />
-        case 4:
-            return (
-                <Translation form={form} />
-            )
-        case 5:
-            return <Review form={form} car={form.getValues()} />
-        default:
-            return null
+export function CarFormSteps({ currentStep, form }: Readonly<{ form: CarFormReturnType; currentStep: number }>) {
+    const steps: Record<number, React.JSX.Element> = {
+        0: <BasicDetails form={form} />,
+        1: <Specifications form={form} />,
+        2: <Media form={form} />,
+        3: <Documents form={form} />,
+        4: <Owner form={form} />,
+        5: <FeaturesAndPricing form={form} />,
+        6: <Translation form={form} />,
+        7: <Review form={form} />,
     }
+    return steps[currentStep]
 }
 
 function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
@@ -61,6 +71,19 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="blockchainId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Blockchain ID</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Enter blockchain identifier" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
                     <FormField
                         control={form.control}
@@ -69,9 +92,11 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                             <FormItem>
                                 <FormLabel>Model*</FormLabel>
                                 <FormControl>
-                                    <CarModelsSelect onChange={(modelId) => {
-                                        field.onChange(modelId)
-                                    }} />
+                                    <CarModelsSelect
+                                        onChange={(modelId) => {
+                                            field.onChange(modelId)
+                                        }}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -91,7 +116,8 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                                         type="number"
                                         placeholder="Enter year"
                                         {...field}
-                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -112,13 +138,26 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {Object.entries(CarCategory).map(([key, value]) => (
-                                            <SelectItem key={key} value={value}>
-                                                {value.replace(/_/g, " ")}
+                                        {Object.values(CarCategory).map((value) => (
+                                            <SelectItem key={value} value={value}>
+                                                {value.replace("_"," ")}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="metaverseAssetId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Metaverse Asset ID</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Enter metaverse asset ID" {...field} />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -189,7 +228,8 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                                         type="number"
                                         placeholder="Enter number of doors"
                                         {...field}
-                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -208,7 +248,8 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                                         type="number"
                                         placeholder="Enter number of seats"
                                         {...field}
-                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -249,24 +290,20 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Listing Type*</FormLabel>
-                                <div className="space-y-2">
-                                    {Object.entries(CarListingType).map(([key, value]) => (
-                                        <div key={key} className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={`listing-${value}`}
-                                                checked={field.value?.includes(value)}
-                                                onCheckedChange={(checked) => {
-                                                    const currentValues = field.value || []
-                                                    const newValues = checked
-                                                        ? [...currentValues, value]
-                                                        : currentValues.filter((v) => v !== value)
-                                                    field.onChange(newValues)
-                                                }}
-                                            />
-                                            <Label htmlFor={`listing-${value}`}>{value.replace(/_/g, " ")}</Label>
-                                        </div>
-                                    ))}
-                                </div>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Listing Type" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {Object.values(CarListingType).map((value) => (
+                                            <SelectItem key={value} value={value}>
+                                                {value.replace("_"," ")}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -285,7 +322,8 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                                         type="number"
                                         placeholder="Enter mileage"
                                         {...field}
-                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -317,23 +355,20 @@ function BasicDetails({ form }: Readonly<{ form: CarFormReturnType }>) {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="acquisitionDate"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Acquisition Date</FormLabel>
+                                <FormControl>
+                                    <Input type="date" {...(field as any)} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
-
-                <FormField
-                    control={form.control}
-                    name="isActive"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
-                            <div className="space-y-1">
-                                <FormLabel>Active</FormLabel>
-                                <FormDescription>Car will be visible on the site</FormDescription>
-                            </div>
-                            <FormControl>
-                                <Switch checked={field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
             </CardContent>
         </Card>
     )
@@ -372,7 +407,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter horsepower"
                                             {...field}
-                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -393,7 +429,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter torque"
                                             {...field}
-                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -412,7 +449,7 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter displacement"
                                             value={field.value || ""}
-                                            onChange={(e) => field.onChange(e.target.value ? Number.parseInt(e.target.value) : undefined)}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -433,7 +470,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter acceleration"
                                             {...field}
-                                            onChange={(e) => field.onChange(Number.parseFloat(e.target.value))}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -452,7 +490,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter top speed"
                                             {...field}
-                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -461,49 +500,81 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                         />
                     </div>
 
-                    {form.watch("fuelType") === "ELECTRIC" ||
-                        form.watch("fuelType") === "HYBRID" ||
-                        form.watch("fuelType") === "PLUG_IN_HYBRID" ? (
-                        <div className="grid gap-6 sm:grid-cols-2">
-                            <FormField
-                                control={form.control}
-                                name="engineSpecs.batteryCapacity"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Battery Capacity (kWh)</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="Enter battery capacity"
-                                                value={field.value || ""}
-                                                onChange={(e) => field.onChange(e.target.value ? Number.parseInt(e.target.value) : undefined)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                    <div className="grid gap-6 sm:grid-cols-2">
+                        <FormField
+                            control={form.control}
+                            name="engineSpecs.batteryCapacity"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Battery Capacity (kWh)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            placeholder="Enter battery capacity"
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                            <FormField
-                                control={form.control}
-                                name="engineSpecs.range"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Range (km)</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="Enter range"
-                                                value={field.value || ""}
-                                                onChange={(e) => field.onChange(e.target.value ? Number.parseInt(e.target.value) : undefined)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    ) : null}
+                        <FormField
+                            control={form.control}
+                            name="engineSpecs.range"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Range (km)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            placeholder="Enter range"
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="engineSpecs.size"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Size (L)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            placeholder="Enter engine size"
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    <FormField
+                        control={form.control}
+                        name="fuelTankSize"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Fuel Tank Size (L)</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter fuel tank size"
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </CardContent>
             </Card>
 
@@ -523,7 +594,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter length"
                                             {...field}
-                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -542,7 +614,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter width"
                                             {...field}
-                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -563,7 +636,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter height"
                                             {...field}
-                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -582,7 +656,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                             type="number"
                                             placeholder="Enter weight"
                                             {...field}
-                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -602,7 +677,8 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                         type="number"
                                         placeholder="Enter cargo capacity"
                                         {...field}
-                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -649,7 +725,7 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                                 <FormItem>
                                     <FormLabel>Last Inspection Date</FormLabel>
                                     <FormControl>
-                                        <Input type="date" {...field} />
+                                        <Input type="date" {...(field as any)} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -664,7 +740,7 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
                             <FormItem>
                                 <FormLabel>Next Inspection Due Date</FormLabel>
                                 <FormControl>
-                                    <Input type="date" {...field} />
+                                    <Input type="date" {...(field as any)} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -677,21 +753,30 @@ function Specifications({ form }: Readonly<{ form: CarFormReturnType }>) {
 }
 
 function Media({ form }: Readonly<{ form: CarFormReturnType }>) {
-    const [mediaItems, setMediaItems] = useState<ICarMedia[]>(form.getValues("media") || [])
+    const [mediaItems, setMediaItems] = useState<ICarMedia[]>(
+        form.getValues("media")?.map((m, i) => ({
+            isThumbnail: m.isThumbnail ?? false,
+            type: (m.type as MediaType) ?? MediaType.IMAGE,
+            url: m.url ?? "#",
+            position: m.position ?? i,
+            description: m.description ?? "",
+            title: m.title ?? "",
+        })) ?? [],
+    )
 
     const addMediaItem = () => {
         const newMedia = [
             ...mediaItems,
             {
                 url: "",
-                type: "IMAGE",
+                type: MediaType.IMAGE,
                 isThumbnail: mediaItems.length === 0,
                 title: "",
                 description: "",
                 position: mediaItems.length,
             },
         ]
-        setMediaItems(newMedia as any)
+        setMediaItems(newMedia)
         form.setValue("media", newMedia)
     }
 
@@ -847,25 +932,347 @@ function Media({ form }: Readonly<{ form: CarFormReturnType }>) {
     )
 }
 
+function Documents({ form }: Readonly<{ form: CarFormReturnType }>) {
+    const [documents, setDocuments] = useState<any[]>(form.getValues("documents") || [])
+
+    const addDocument = () => {
+        const newDoc = {
+            type: "",
+            title: "",
+            fileUrl: "",
+            issueDate: new Date(),
+            expiryDate: undefined,
+            isVerified: false,
+            verificationDate: undefined,
+        }
+        const newDocs = [...documents, newDoc]
+        setDocuments(newDocs)
+        form.setValue("documents", newDocs)
+    }
+
+    const removeDocument = (index: number) => {
+        const newDocs = [...documents]
+        newDocs.splice(index, 1)
+        setDocuments(newDocs)
+        form.setValue("documents", newDocs)
+    }
+
+    return (
+        <Card>
+            <CardContent className="pt-6 space-y-8">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-medium">Car Documents</h3>
+                    <Button type="button" variant="outline" onClick={addDocument}>
+                        Add Document
+                    </Button>
+                </div>
+
+                {documents.length === 0 ? (
+                    <div className="text-center p-8 border border-dashed rounded-lg">
+                        <p className="text-muted-foreground">
+                            No documents added yet. Click "Add Document" to upload car documents.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {documents.map((doc, index) => (
+                            <div key={index} className="border rounded-lg p-4 space-y-4">
+                                <div className="flex justify-between items-start">
+                                    <h4 className="font-medium">Document {index + 1}</h4>
+                                    <Button type="button" variant="destructive" size="sm" onClick={() => removeDocument(index)}>
+                                        Remove
+                                    </Button>
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <FormField
+                                        control={form.control}
+                                        name={`documents.${index}.type`}
+                                        render={({ field }) => (
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select Document type" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {Object.values(CarDocumentType).map(dt => (
+                                                        <SelectItem value={dt}>{dt}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name={`documents.${index}.title`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Title*</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="Enter document title" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <FormField
+                                    control={form.control}
+                                    name={`documents.${index}.fileUrl`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>File URL*</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Enter document URL" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <FormField
+                                        control={form.control}
+                                        name={`documents.${index}.issueDate`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Issue Date*</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...(field as any)} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name={`documents.${index}.expiryDate`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Expiry Date</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...(field as any)} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <FormField
+                                        control={form.control}
+                                        name={`documents.${index}.isVerified`}
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                                <FormControl>
+                                                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                                </FormControl>
+                                                <div className="space-y-1 leading-none">
+                                                    <FormLabel>Document is verified</FormLabel>
+                                                    <FormDescription>Check if this document has been verified</FormDescription>
+                                                </div>
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    {form.watch(`documents.${index}.isVerified`) && (
+                                        <FormField
+                                            control={form.control}
+                                            name={`documents.${index}.verificationDate`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Verification Date</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="date" {...(field as any)} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    )
+}
+
+function Owner({ form }: Readonly<{ form: CarFormReturnType }>) {
+    return (
+        <Card>
+            <CardContent className="pt-6 space-y-8">
+                <h3 className="text-lg font-medium">Ownership Details</h3>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                    <FormField
+                        control={form.control}
+                        name="owner.ownerId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Owner ID*</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Enter owner identifier" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="owner.ownerType"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Owner Type*</FormLabel>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select owner type" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="User">User</SelectItem>
+                                        <SelectItem value="Company">Company</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                    <FormField
+                        control={form.control}
+                        name="owner.percentage"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Ownership Percentage*</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter ownership percentage"
+                                        {...field}
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="owner.nftId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>NFT ID</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Enter NFT identifier" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                    <FormField
+                        control={form.control}
+                        name="owner.acquiredDate"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Acquired Date*</FormLabel>
+                                <FormControl>
+                                    <Input type="date" {...(field as any)} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="owner.transferDate"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Transfer Date</FormLabel>
+                                <FormControl>
+                                    <Input type="date" {...(field as any)} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <FormField
+                    control={form.control}
+                    name="owner.status"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Ownership Status*</FormLabel>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Active">Active</SelectItem>
+                                    <SelectItem value="Pending">Pending</SelectItem>
+                                    <SelectItem value="Transferred">Transferred</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </CardContent>
+        </Card>
+    )
+}
+
 function FeaturesAndPricing({ form }: Readonly<{ form: CarFormReturnType }>) {
-    const [pricingItems, setPricingItems] = useState<RentalPricingDto[]>(
-        (form.getValues("rentalPricings")?.map(item => ({
-            ...item,
-            duration: typeof item.duration === 'string' ? parseInt(item.duration) : item.duration
-        })) as RentalPricingDto[]) || [{ duration: 1, unit: "DAY", price: 0, currency: Currencies.USD }]
+    const [pricingItems, setPricingItems] = useState<z.infer<typeof CarRentalPricingSchema>>(
+        form.getValues("rentalPricings")?.map((p) => ({
+            currency: (p.currency as Currencies) ?? Currencies.USD,
+            duration: Number(p.duration) ?? 0,
+            unit: p.unit ?? CarPricingUnit.DAY,
+            price: p.price ?? 0,
+            mileageLimit: p.mileageLimit ?? 0,
+        })) ?? [],
     )
 
     const addPricingItem = () => {
-        const newPricing = [...pricingItems, { duration: 1, unit: CarPricingUnit.DAY, price: 0, currency: Currencies.USD }]
+        const newPricing = [
+            ...pricingItems,
+            {
+                currency: Currencies.USD,
+                duration: 1,
+                price: 0,
+                unit: CarPricingUnit.DAY,
+                mileageLimit: 0,
+            },
+        ]
         setPricingItems(newPricing)
-        form.setValue("rentalPricings", newPricing as any)
+        form.setValue("rentalPricings", newPricing)
     }
 
     const removePricingItem = (index: number) => {
         const newPricing = [...pricingItems]
         newPricing.splice(index, 1)
         setPricingItems(newPricing)
-        form.setValue("rentalPricings", newPricing as any)
+        form.setValue("rentalPricings", newPricing)
     }
 
     return (
@@ -926,13 +1333,7 @@ function FeaturesAndPricing({ form }: Readonly<{ form: CarFormReturnType }>) {
                                                     placeholder="Enter duration"
                                                     {...field}
                                                     value={field.value || ""}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value ? Number.parseInt(e.target.value) : undefined
-                                                        field.onChange(value)
-                                                        const newPricing = [...pricingItems]
-                                                        newPricing[index].duration = value
-                                                        setPricingItems(newPricing)
-                                                    }}
+                                                    onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -987,13 +1388,7 @@ function FeaturesAndPricing({ form }: Readonly<{ form: CarFormReturnType }>) {
                                                     placeholder="Enter price"
                                                     {...field}
                                                     value={field.value || ""}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value ? Number.parseFloat(e.target.value) : undefined
-                                                        field.onChange(value)
-                                                        const newPricing = [...pricingItems]
-                                                        newPricing[index].price = value
-                                                        setPricingItems(newPricing)
-                                                    }}
+                                                    onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -1022,11 +1417,11 @@ function FeaturesAndPricing({ form }: Readonly<{ form: CarFormReturnType }>) {
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="USD">USD</SelectItem>
-                                                    <SelectItem value="EUR">EUR</SelectItem>
-                                                    <SelectItem value="GBP">GBP</SelectItem>
-                                                    <SelectItem value="JPY">JPY</SelectItem>
-                                                    <SelectItem value="AED">AED</SelectItem>
+                                                    {Object.values(Currencies).map((v) => (
+                                                        <SelectItem key={v} value={v}>
+                                                            {v}
+                                                        </SelectItem>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -1038,195 +1433,25 @@ function FeaturesAndPricing({ form }: Readonly<{ form: CarFormReturnType }>) {
                     ))}
                 </CardContent>
             </Card>
-        </div>
-    )
-}
+            <Card>
+                <CardContent className="pt-6 space-y-6">
+                    <h3 className="text-lg font-medium">Security Deposit</h3>
 
-function Translation({
-    form,
-}: Readonly<{ form: CarFormReturnType; }>) {
-    const [activeLocale, setActiveLocale] = useState<Locale>("en")
-    const translations: CarTranslationDTO[] = form.getValues("translations") || []
-    const mainTranslation = translations.find((t: CarTranslationDTO) => t.locale === "en") || {
-        name: "",
-        shortDescription: "",
-        description: "",
-        locale: "en",
-        color: {
-            name: "",
-            code: ""
-        },
-        interiorColor: {
-            name: "",
-            code: ""
-        },
-        metaTags: [],
-        metaTitle: "",
-        metaDescription: ""
-    }
-    const [isTranslating, setIsTranslating] = useState(false)
-
-    useEffect(() => {
-        const currentTranslations = form.getValues("translations") || []
-        const locales = Languages.map((lang) => lang.code)
-
-        const missingLocales = locales.filter((locale) => !currentTranslations.some((t: CarTranslationDTO) => t.locale === locale))
-
-        if (missingLocales.length > 0) {
-            const newTranslations = [...currentTranslations]
-
-            missingLocales.forEach((locale) => {
-                newTranslations.push({
-                    name: "",
-                    shortDescription: "",
-                    description: "",
-                    locale,
-                })
-            })
-
-            form.setValue("translations", newTranslations)
-        }
-    }, [form])
-
-    function syncWithMainContent() {
-        const mainName = mainTranslation.name
-        const mainDescription = mainTranslation.description ?? ""
-        const mainShortDescription = mainTranslation.shortDescription ?? ""
-
-        const currentTranslations = form.getValues("translations") || []
-        const updatedTranslations = currentTranslations.map((t: CarTranslationDTO) =>
-            t.locale === activeLocale
-                ? { ...t, name: mainName, description: mainDescription, shortDescription: mainShortDescription }
-                : t,
-        )
-
-        form.setValue("translations", updatedTranslations)
-        toast.success(`Updated ${Languages.find((l) => l.code === activeLocale)?.name} translation`)
-    }
-
-    // async function handleAutoTranslate() {
-    //     if (activeLocale === "en") {
-    //         toast.error("Cannot translate to the source language")
-    //         return
-    //     }
-
-    //     const sourceContent = {
-    //         name: mainTranslation.name,
-    //         shortDescription: mainTranslation.shortDescription,
-    //         description: mainTranslation.description,
-    //     }
-
-    //     if (!sourceContent.name || !sourceContent.shortDescription) {
-    //         toast.error("Missing source content. Please complete the English translation first.")
-    //         return
-    //     }
-
-    //     setIsTranslating(true)
-    //     try {
-    //         toast.promise(
-    //             translateContent(sourceContent, "en", activeLocale).then((translatedContent) => {
-    //                 const currentTranslations = form.getValues("translations") || []
-    //                 const updatedTranslations = currentTranslations.map((t) =>
-    //                     t.locale === activeLocale
-    //                         ? {
-    //                             ...t,
-    //                             name: translatedContent.name ?? t.name,
-    //                             description: translatedContent.description ?? t.description,
-    //                             shortDescription: translatedContent.shortDescription ?? t.shortDescription,
-    //                         }
-    //                         : t,
-    //                 )
-
-    //                 form.setValue("translations", updatedTranslations)
-    //             }),
-    //             {
-    //                 loading: `Translating to ${Languages.find((l) => l.code === activeLocale)?.name}...`,
-    //                 success: `Translated to ${Languages.find((l) => l.code === activeLocale)?.name}`,
-    //                 error: "Translation failed",
-    //             },
-    //         )
-    //     } catch (error) {
-    //         console.error("Translation error:", error)
-    //     } finally {
-    //         setIsTranslating(false)
-    //     }
-    // }
-
-    // async function translateAllLanguages() {
-    //     const sourceContent = {
-    //         name: mainTranslation.name,
-    //         shortDescription: mainTranslation.shortDescription,
-    //         description: mainTranslation.description,
-    //     }
-
-    //     if (!sourceContent.name || !sourceContent.shortDescription) {
-    //         toast.error("Missing source content. Please complete the English translation first.")
-    //         return
-    //     }
-
-    //     setIsTranslating(true)
-    //     try {
-    //         const targetLanguages = Languages.filter((lang) => lang.code !== "en").map((lang) => lang.code)
-
-    //         toast.promise(
-    //             Promise.all(
-    //                 targetLanguages.map(async (locale) => {
-    //                     const translatedContent = await translateContent(sourceContent, "en", locale)
-    //                     return { locale, content: translatedContent }
-    //                 }),
-    //             ).then((results) => {
-    //                 const currentTranslations = form.getValues("translations") || []
-
-    //                 const updatedTranslations = currentTranslations.map((translation) => {
-    //                     const result = results.find((r) => r.locale === translation.locale)
-    //                     if (result) {
-    //                         return {
-    //                             ...translation,
-    //                             name: result.content.name ?? translation.name,
-    //                             description: result.content.description ?? translation.description,
-    //                             shortDescription: result.content.shortDescription ?? translation.shortDescription,
-    //                         }
-    //                     }
-    //                     return translation
-    //                 })
-
-    //                 form.setValue("translations", updatedTranslations)
-    //             }),
-    //             {
-    //                 loading: "Translating to all languages...",
-    //                 success: "All translations completed",
-    //                 error: "Some translations failed",
-    //             },
-    //         )
-    //     } catch (error) {
-    //         console.error("Translation error:", error)
-    //     } finally {
-    //         setIsTranslating(false)
-    //     }
-    // }
-
-    return (
-        <Card>
-            <CardContent className="pt-6 space-y-8">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h3 className="text-lg font-medium">Translations</h3>
-                    {/* <Button type="button" variant="outline" size="sm" onClick={translateAllLanguages} disabled={isTranslating}>
-                        {isTranslating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Globe className="mr-2 h-4 w-4" />}
-                        Translate All Languages
-                    </Button> */}
-                </div>
-
-                <div className="border rounded-lg p-4 bg-muted/20">
-                    <h4 className="font-medium mb-4">English (Source Language)</h4>
-                    <div className="space-y-4">
+                    <div className="grid gap-6 sm:grid-cols-2">
                         <FormField
                             control={form.control}
-                            name="translations.0.name"
+                            name="securityDeposit.amount"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Name (English)*</FormLabel>
+                                    <FormLabel>Deposit Amount*</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter car name" {...field} />
+                                        <Input
+                                            type="number"
+                                            placeholder="Enter deposit amount"
+                                            {...field}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -1235,132 +1460,359 @@ function Translation({
 
                         <FormField
                             control={form.control}
-                            name="translations.0.shortDescription"
+                            name="securityDeposit.currency"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Short Description (English)</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Enter short description" className="resize-none h-32" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="translations.0.description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Full Description (English)</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Enter full description" className="min-h-[200px] resize-y" {...field} />
-                                    </FormControl>
+                                    <FormLabel>Currency*</FormLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select currency" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {Object.values(Currencies).map((v) => (
+                                                <SelectItem key={v} value={v}>
+                                                    {v}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                     </div>
-                </div>
-
-                <Tabs defaultValue="fr" value={activeLocale} onValueChange={(value) => setActiveLocale(value as Locale)}>
-                    <TabsList className="mb-6 w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                        {Languages.filter((lang) => lang.code !== "en").map(({ code, name }) => (
-                            <TabsTrigger key={code} value={code} className="flex-1">
-                                {name}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
-
-                    {Languages.filter((lang) => lang.code !== "en").map(({ code, name }) => (
-                        <TabsContent key={code} value={code} className="space-y-6">
-                            <div className="flex justify-end gap-3">
-                                {/* <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={handleAutoTranslate}
-                                    disabled={isTranslating}
-                                >
-                                    {isTranslating ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Sparkles className="mr-2 h-4 w-4" />
-                                    )}
-                                    Auto Translate
-                                </Button> */}
-                                <Button type="button" variant="outline" size="sm" onClick={syncWithMainContent}>
-                                    Copy from English
-                                </Button>
-                            </div>
-
-                            {translations
-                                .filter((t) => t.locale === code)
-                                .map((translation, idx) => (
-                                    <div key={idx} className="space-y-4">
-                                        <FormField
-                                            control={form.control}
-                                            name={`translations.${translations.findIndex((t) => t.locale === code)}.name`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Name ({name})</FormLabel>
-                                                    <FormControl>
-                                                        <Input placeholder={`Car name in ${name}`} {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name={`translations.${translations.findIndex((t) => t.locale === code)}.shortDescription`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Short Description ({name})</FormLabel>
-                                                    <FormControl>
-                                                        <Textarea
-                                                            placeholder={`Short description in ${name}`}
-                                                            className="resize-none h-32"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name={`translations.${translations.findIndex((t) => t.locale === code)}.description`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Full Description ({name})</FormLabel>
-                                                    <FormControl>
-                                                        <Textarea
-                                                            placeholder={`Full description in ${name}`}
-                                                            className="min-h-[200px] resize-y"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                ))}
-                        </TabsContent>
-                    ))}
-                </Tabs>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+        </div>
     )
 }
 
-function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>) {
-    const formValues = form.getValues()
-    const mainTranslation = formValues.translations?.find((t: CarTranslationDTO) => t.locale === "en")
 
+function Translation({ form }: Readonly<{ form: CarFormReturnType }>) {
+    const [activeLocale, setActiveLocale] = useState<Locale>("en");
+    const [isInitialized, setIsInitialized] = useState(false);
+
+    const orderedLanguages = useMemo(() => 
+        [...Languages].sort((a, b) => a.code === "en" ? -1 : b.code === "en" ? 1 : 0)
+    , []);
+
+    useEffect(() => {
+        if (isInitialized) return;
+
+        const currentTranslations = form.getValues("translations") || [];
+        const defaultStructure = orderedLanguages.map(lang => ({
+            locale: lang.code,
+            name: "",
+            color: { name: "White", code: "#FFFFFF" },
+            interiorColor: { name: "White", code: "#000000" },
+            shortDescription: "",
+            description: "",
+            metaTitle: "",
+            metaDescription: "",
+            metaTags: [],
+        }));
+
+        const merged = defaultStructure.map(def => {
+            const existing = currentTranslations.find(t => t.locale === def.locale);
+            return existing ? { ...def, ...existing } : def;
+        });
+
+        form.setValue("translations", merged);
+        setIsInitialized(true);
+    }, [form, isInitialized, orderedLanguages]);
+
+    const translations = form.watch("translations") || [];
+
+    const handleSyncTranslation = (targetLocale: Locale) => {
+        const englishTranslation = translations.find(t => t.locale === "en");
+        if (!englishTranslation) return;
+
+        form.setValue("translations", translations.map(t => 
+            t.locale === targetLocale ? { ...englishTranslation, locale: targetLocale } : t
+        ));
+        toast.success(`Copied from English to ${Languages.find(l => l.code === targetLocale)?.name}`);
+    };
+
+
+    function TextSection({ form, locale, index }: { 
+        form: CarFormReturnType, 
+        locale: Locale,
+        index: number
+    }) {
+        return (
+            <div className="space-y-4">
+                <FormField
+                    control={form.control}
+                    name={`translations.${index}.name`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Name ({locale})</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder={`Car name in ${locale}`}
+                                    {...field}
+                                    value={field.value as string}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+    
+                <FormField
+                    control={form.control}
+                    name={`translations.${index}.shortDescription`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Short Description ({locale})</FormLabel>
+                            <FormControl>
+                                <Textarea
+                                    placeholder={`Short description in ${locale}`}
+                                    className="h-32 resize-none"
+                                    {...field}
+                                    value={field.value as string}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+    
+                <FormField
+                    control={form.control}
+                    name={`translations.${index}.description`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Full Description ({locale})</FormLabel>
+                            <FormControl>
+                                <Textarea
+                                    placeholder={`Full description in ${locale}`}
+                                    className="min-h-[200px] resize-y"
+                                    {...field}
+                                    value={field.value as string}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+        );
+    }
+    
+    function ColorSection({ form, index, locale }: { 
+        form: CarFormReturnType, 
+        index: number, 
+        locale: Locale 
+    }) {
+        return (
+            <div className="space-y-4 border-t pt-4">
+                <h4 className="font-medium">Color Information</h4>
+                
+                <div className="grid gap-6 sm:grid-cols-2">
+                    <FormField
+                        control={form.control}
+                        name={`translations.${index}.color.name`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Color Name ({locale})</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder={`Color name in ${locale}`}
+                                        {...field}
+                                        value={field.value as string}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+    
+                    <FormField
+                        control={form.control}
+                        name={`translations.${index}.color.code`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Color Code</FormLabel>
+                                <FormControl>
+                                    <ColorInput 
+                                        value={field.value as string} 
+                                        onChange={field.onChange} 
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+    
+                <div className="grid gap-6 sm:grid-cols-2">
+                    <FormField
+                        control={form.control}
+                        name={`translations.${index}.interiorColor.name`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Interior Color Name ({locale})</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder={`Interior color name in ${locale}`}
+                                        {...field}
+                                        value={field.value as string}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+    
+                    <FormField
+                        control={form.control}
+                        name={`translations.${index}.interiorColor.code`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Interior Color Code</FormLabel>
+                                <FormControl>
+                                    <ColorInput 
+                                        value={field.value as string} 
+                                        onChange={field.onChange} 
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            </div>
+        );
+    }
+    
+    function SeoSection({ form, index, locale }: { 
+        form: CarFormReturnType, 
+        index: number, 
+        locale: Locale 
+    }) {
+        return (
+            <div className="space-y-4 border-t pt-4">
+                <h4 className="font-medium">SEO Metadata</h4>
+    
+                <FormField
+                    control={form.control}
+                    name={`translations.${index}.metaTitle`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Meta Title ({locale})</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder={`Meta title in ${locale}`}
+                                    {...field}
+                                    value={field.value as string}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+    
+                <FormField
+                    control={form.control}
+                    name={`translations.${index}.metaDescription`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Meta Description ({locale})</FormLabel>
+                            <FormControl>
+                                <Textarea
+                                    placeholder={`Meta description in ${locale}`}
+                                    className="h-20 resize-none"
+                                    {...field}
+                                    value={field.value as string}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+    
+                <FormField
+                    control={form.control}
+                    name={`translations.${index}.metaTags`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Meta Tags ({locale})</FormLabel>
+                            <FormControl>
+                                <TagInput
+                                    placeholder={`Meta tags in ${locale} (comma separated)`}
+                                    tags={field.value as string[]}
+                                    setTags={field.onChange}
+                                />
+                            </FormControl>
+                            <FormDescription>
+                                Separate tags with commas (e.g. luxury, sedan, rental)
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+        );
+    }
+    return (
+        <Card>
+            <CardContent className="pt-6 space-y-8">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-medium">Translations</h3>
+                </div>
+
+                <Tabs value={activeLocale} onValueChange={v => setActiveLocale(v as Locale)}>
+                    <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                        {orderedLanguages.map((lang) => (
+                            translations.some(t => t.locale === lang.code) && (
+                                <TabsTrigger key={lang.code} value={lang.code}>
+                                    {lang.name}
+                                </TabsTrigger>
+                            )
+                        ))}
+                    </TabsList>
+
+                    {orderedLanguages.map((lang, index) => {
+                        const translation = translations.find(t => t.locale === lang.code);
+                        if (!translation) return null;
+
+                        return (
+                            <TabsContent key={lang.code} value={lang.code} className="space-y-6">
+                                <div className="flex justify-end gap-3">
+                                    {lang.code !== "en" && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleSyncTranslation(lang.code)}
+                                        >
+                                            Copy from English
+                                        </Button>
+                                    )}
+                                </div>
+
+                                <div className="space-y-4">
+                                    <TextSection form={form} locale={lang.code} index={index} />
+                                    <ColorSection form={form} locale={lang.code} index={index} />
+                                    <SeoSection form={form} locale={lang.code} index={index} />
+                                </div>
+                            </TabsContent>
+                        );
+                    })}
+                </Tabs>
+            </CardContent>
+        </Card>
+    );
+}
+
+
+
+function Review({ form }: Readonly<{ form: CarFormReturnType, }>) {
+    const formValues = form.getValues()
+    const mainTranslation = formValues.translations?.find((t) => t.locale === "en")
     return (
         <div className="space-y-8">
             <Card>
@@ -1373,37 +1825,83 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div>
                                         <Label className="font-medium text-sm">Name</Label>
-                                        <p className="text-sm">{mainTranslation?.name}</p>
+                                        <p className="text-sm">{mainTranslation?.name || "Not provided"}</p>
                                     </div>
                                     <div>
                                         <Label className="font-medium text-sm">VIN</Label>
-                                        <p className="text-sm">{formValues.vin}</p>
+                                        <p className="text-sm">{formValues.vin || "Not provided"}</p>
+                                    </div>
+                                    <div>
+                                        <Label className="font-medium text-sm">Blockchain ID</Label>
+                                        <p className="text-sm">{formValues.blockchainId || "Not provided"}</p>
                                     </div>
                                     <div>
                                         <Label className="font-medium text-sm">Model</Label>
-                                        <p className="text-sm">{formValues.model}</p>
+                                        <p className="text-sm">{formValues.model || "Not provided"}</p>
                                     </div>
                                     <div>
                                         <Label className="font-medium text-sm">Year</Label>
-                                        <p className="text-sm">{formValues.year}</p>
+                                        <p className="text-sm">{formValues.year || "Not provided"}</p>
                                     </div>
                                     <div>
                                         <Label className="font-medium text-sm">Category</Label>
-                                        <p className="text-sm capitalize">{formValues.category?.toLowerCase().replace(/_/g, " ")}</p>
+                                        <p className="text-sm capitalize">
+                                            {formValues.category?.toLowerCase().replace(/_/g, " ") || "Not provided"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <Label className="font-medium text-sm">Metaverse Asset ID</Label>
+                                        <p className="text-sm">{formValues.metaverseAssetId || "Not provided"}</p>
                                     </div>
                                     <div>
                                         <Label className="font-medium text-sm">Status</Label>
-                                        <p className="text-sm capitalize">{formValues.currentStatus?.toLowerCase().replace(/_/g, " ")}</p>
+                                        <p className="text-sm capitalize">
+                                            {formValues.currentStatus?.toLowerCase().replace(/_/g, " ") || "Not provided"}
+                                        </p>
                                     </div>
                                     <div>
                                         <Label className="font-medium text-sm">Listing Type</Label>
                                         <Badge variant="secondary" className="capitalize">
-                                            {formValues.listingType.replace(/_/g, " ").toLowerCase()}
+                                            {formValues.listingType?.replace(/_/g, " ").toLowerCase() || "Not provided"}
                                         </Badge>
                                     </div>
                                     <div>
                                         <Label className="font-medium text-sm">Mileage</Label>
-                                        <p className="text-sm">{formValues.mileage} km</p>
+                                        <p className="text-sm">{formValues.mileage ? `${formValues.mileage} km` : "Not provided"}</p>
+                                    </div>
+                                    <div>
+                                        <Label className="font-medium text-sm">Condition</Label>
+                                        <p className="text-sm capitalize">
+                                            {formValues.condition?.toLowerCase().replace(/_/g, " ") || "Not provided"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <Label className="font-medium text-sm">Acquisition Date</Label>
+                                        <p className="text-sm">
+                                            {formValues.acquisitionDate
+                                                ? new Date(formValues.acquisitionDate).toLocaleDateString()
+                                                : "Not provided"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <Label className="font-medium text-sm">Fuel Type</Label>
+                                        <p className="text-sm capitalize">
+                                            {formValues.fuelType?.toLowerCase().replace(/_/g, " ") || "Not provided"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <Label className="font-medium text-sm">Transmission</Label>
+                                        <p className="text-sm capitalize">
+                                            {formValues.transmission?.toLowerCase().replace(/_/g, " ") || "Not provided"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <Label className="font-medium text-sm">Doors</Label>
+                                        <p className="text-sm">{formValues.doors || "Not provided"}</p>
+                                    </div>
+                                    <div>
+                                        <Label className="font-medium text-sm">Seats</Label>
+                                        <p className="text-sm">{formValues.seats || "Not provided"}</p>
                                     </div>
                                 </div>
                             </AccordionContent>
@@ -1415,56 +1913,269 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                                 <div className="space-y-6">
                                     <div>
                                         <Label className="font-medium text-sm">Engine Specifications</Label>
-                                        <div className="grid grid-cols-2 gap-4 mt-2">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Engine Type</Label>
-                                                <p className="text-sm">{formValues.engineSpecs?.type}</p>
+                                                <p className="text-sm">{formValues.engineSpecs?.type || "Not provided"}</p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Horsepower</Label>
-                                                <p className="text-sm">{formValues.engineSpecs?.horsepower} HP</p>
+                                                <p className="text-sm">
+                                                    {formValues.engineSpecs?.horsepower
+                                                        ? `${formValues.engineSpecs.horsepower} HP`
+                                                        : "Not provided"}
+                                                </p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Torque</Label>
-                                                <p className="text-sm">{formValues.engineSpecs?.torque} Nm</p>
+                                                <p className="text-sm">
+                                                    {formValues.engineSpecs?.torque ? `${formValues.engineSpecs.torque} Nm` : "Not provided"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Displacement</Label>
+                                                <p className="text-sm">
+                                                    {formValues.engineSpecs?.displacement
+                                                        ? `${formValues.engineSpecs.displacement} cc`
+                                                        : "Not provided"}
+                                                </p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Acceleration (0-100 km/h)</Label>
-                                                <p className="text-sm">{formValues.engineSpecs?.acceleration}s</p>
+                                                <p className="text-sm">
+                                                    {formValues.engineSpecs?.acceleration
+                                                        ? `${formValues.engineSpecs.acceleration}s`
+                                                        : "Not provided"}
+                                                </p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Top Speed</Label>
-                                                <p className="text-sm">{formValues.engineSpecs?.topSpeed} km/h</p>
+                                                <p className="text-sm">
+                                                    {formValues.engineSpecs?.topSpeed
+                                                        ? `${formValues.engineSpecs.topSpeed} km/h`
+                                                        : "Not provided"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Battery Capacity</Label>
+                                                <p className="text-sm">
+                                                    {formValues.engineSpecs?.batteryCapacity
+                                                        ? `${formValues.engineSpecs.batteryCapacity} kWh`
+                                                        : "Not provided"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Range</Label>
+                                                <p className="text-sm">
+                                                    {formValues.engineSpecs?.range ? `${formValues.engineSpecs.range} km` : "Not provided"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Engine Size</Label>
+                                                <p className="text-sm">
+                                                    {formValues.engineSpecs?.size ? `${formValues.engineSpecs.size} L` : "Not provided"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Fuel Tank Size</Label>
+                                                <p className="text-sm">
+                                                    {formValues.fuelTankSize ? `${formValues.fuelTankSize} L` : "Not provided"}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div>
                                         <Label className="font-medium text-sm">Dimensions</Label>
-                                        <div className="grid grid-cols-2 gap-4 mt-2">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Length</Label>
-                                                <p className="text-sm">{formValues.dimensions?.length} mm</p>
+                                                <p className="text-sm">
+                                                    {formValues.dimensions?.length ? `${formValues.dimensions.length} mm` : "Not provided"}
+                                                </p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Width</Label>
-                                                <p className="text-sm">{formValues.dimensions?.width} mm</p>
+                                                <p className="text-sm">
+                                                    {formValues.dimensions?.width ? `${formValues.dimensions.width} mm` : "Not provided"}
+                                                </p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Height</Label>
-                                                <p className="text-sm">{formValues.dimensions?.height} mm</p>
+                                                <p className="text-sm">
+                                                    {formValues.dimensions?.height ? `${formValues.dimensions.height} mm` : "Not provided"}
+                                                </p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Weight</Label>
-                                                <p className="text-sm">{formValues.dimensions?.weight} kg</p>
+                                                <p className="text-sm">
+                                                    {formValues.dimensions?.weight ? `${formValues.dimensions.weight} kg` : "Not provided"}
+                                                </p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-muted-foreground">Cargo Capacity</Label>
-                                                <p className="text-sm">{formValues.dimensions?.cargoCapacity} L</p>
+                                                <p className="text-sm">
+                                                    {formValues.dimensions?.cargoCapacity
+                                                        ? `${formValues.dimensions.cargoCapacity} L`
+                                                        : "Not provided"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <Label className="font-medium text-sm">Inspection Details</Label>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Inspection Status</Label>
+                                                <p className="text-sm capitalize">
+                                                    {formValues.inspectionStatus?.toLowerCase().replace(/_/g, " ") || "Not provided"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Last Inspection Date</Label>
+                                                <p className="text-sm">
+                                                    {formValues.lastInspectionDate
+                                                        ? new Date(formValues.lastInspectionDate).toLocaleDateString()
+                                                        : "Not provided"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Next Inspection Due Date</Label>
+                                                <p className="text-sm">
+                                                    {formValues.nextInspectionDueDate
+                                                        ? new Date(formValues.nextInspectionDueDate).toLocaleDateString()
+                                                        : "Not provided"}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="documents">
+                            <AccordionTrigger>Documents</AccordionTrigger>
+                            <AccordionContent>
+                                {formValues.documents && formValues.documents.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {formValues.documents.map((doc, index) => (
+                                            <div key={index} className="border rounded-lg p-4">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <h4 className="font-medium">{doc.title || `Document ${index + 1}`}</h4>
+                                                    {doc.isVerified && (
+                                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                                            Verified
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <Label className="text-xs text-muted-foreground">Type</Label>
+                                                        <p className="text-sm">{doc.type || "Not specified"}</p>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-muted-foreground">File</Label>
+                                                        <p className="text-sm truncate">
+                                                            <a
+                                                                href={doc.fileUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-primary hover:underline"
+                                                            >
+                                                                View Document
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-muted-foreground">Issue Date</Label>
+                                                        <p className="text-sm">
+                                                            {doc.issueDate ? new Date(doc.issueDate).toLocaleDateString() : "Not specified"}
+                                                        </p>
+                                                    </div>
+                                                    {doc.expiryDate && (
+                                                        <div>
+                                                            <Label className="text-xs text-muted-foreground">Expiry Date</Label>
+                                                            <p className="text-sm">{new Date(doc.expiryDate).toLocaleDateString()}</p>
+                                                        </div>
+                                                    )}
+                                                    {doc.isVerified && doc.verificationDate && (
+                                                        <div>
+                                                            <Label className="text-xs text-muted-foreground">Verification Date</Label>
+                                                            <p className="text-sm">{new Date(doc.verificationDate).toLocaleDateString()}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">No documents added</p>
+                                )}
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="owner">
+                            <AccordionTrigger>Ownership Details</AccordionTrigger>
+                            <AccordionContent>
+                                {formValues.owner ? (
+                                    <div className="border rounded-lg p-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Owner ID</Label>
+                                                <p className="text-sm">{formValues.owner.ownerId || "Not specified"}</p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Owner Type</Label>
+                                                <p className="text-sm">{formValues.owner.ownerType || "Not specified"}</p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Ownership Percentage</Label>
+                                                <p className="text-sm">
+                                                    {formValues.owner.percentage ? `${formValues.owner.percentage}%` : "Not specified"}
+                                                </p>
+                                            </div>
+                                            {formValues.owner.nftId && (
+                                                <div>
+                                                    <Label className="text-xs text-muted-foreground">NFT ID</Label>
+                                                    <p className="text-sm">{formValues.owner.nftId}</p>
+                                                </div>
+                                            )}
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Acquired Date</Label>
+                                                <p className="text-sm">
+                                                    {formValues.owner.acquiredDate
+                                                        ? new Date(formValues.owner.acquiredDate).toLocaleDateString()
+                                                        : "Not specified"}
+                                                </p>
+                                            </div>
+                                            {formValues.owner.transferDate && (
+                                                <div>
+                                                    <Label className="text-xs text-muted-foreground">Transfer Date</Label>
+                                                    <p className="text-sm">{new Date(formValues.owner.transferDate).toLocaleDateString()}</p>
+                                                </div>
+                                            )}
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Status</Label>
+                                                <p className="text-sm">
+                                                    <Badge
+                                                        variant={
+                                                            formValues.owner.status === "Active"
+                                                                ? "success"
+                                                                : formValues.owner.status === "Pending"
+                                                                    ? "warning"
+                                                                    : "secondary"
+                                                        }
+                                                    >
+                                                        {formValues.owner.status || "Not specified"}
+                                                    </Badge>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">No ownership details provided</p>
+                                )}
                             </AccordionContent>
                         </AccordionItem>
 
@@ -1482,7 +2193,7 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                                                     </Badge>
                                                 ))
                                             ) : (
-                                                <p className="text-sm">No features added</p>
+                                                <p className="text-sm text-muted-foreground">No features added</p>
                                             )}
                                         </div>
                                     </div>
@@ -1490,19 +2201,39 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                                     <div>
                                         <Label className="font-medium text-sm">Rental Pricing</Label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                                            {formValues.rentalPricings?.map((pricing: RentalPricingDto, index: number) => (
-                                                <div key={index} className="border rounded-md p-3">
-                                                    <div className="text-lg font-bold">
-                                                        {pricing.price} {pricing.currency}
+                                            {formValues.rentalPricings?.length ? (
+                                                formValues.rentalPricings.map((pricing, index) => (
+                                                    <div key={index} className="border rounded-md p-3">
+                                                        <div className="text-lg font-bold">
+                                                            {pricing.price} {pricing.currency}
+                                                        </div>
+                                                        <div className="text-sm text-muted-foreground">
+                                                            {pricing.duration && `${pricing.duration} `}
+                                                            {pricing.unit && pricing.unit.toLowerCase()}
+                                                            {pricing.duration && pricing.duration > 1 ? "s" : ""}
+                                                        </div>
+                                                        {pricing.mileageLimit > 0 && (
+                                                            <div className="text-sm mt-1">Mileage limit: {pricing.mileageLimit} km</div>
+                                                        )}
                                                     </div>
-                                                    <div className="text-sm text-muted-foreground">
-                                                        {pricing.duration && `${pricing.duration} `}
-                                                        {pricing.unit && pricing.unit.toLowerCase()}
-                                                        {pricing.duration && pricing.duration > 1 ? "s" : ""}
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                ))
+                                            ) : (
+                                                <p className="text-sm text-muted-foreground">No pricing options added</p>
+                                            )}
                                         </div>
+                                    </div>
+
+                                    <div>
+                                        <Label className="font-medium text-sm">Security Deposit</Label>
+                                        {formValues.securityDeposit?.amount ? (
+                                            <div className="border rounded-md p-3 mt-2 inline-block">
+                                                <div className="text-lg font-bold">
+                                                    {formValues.securityDeposit.amount} {formValues.securityDeposit.currency}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-muted-foreground mt-1">No security deposit specified</p>
+                                        )}
                                     </div>
                                 </div>
                             </AccordionContent>
@@ -1513,7 +2244,7 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                             <AccordionContent>
                                 {formValues.media && formValues.media.length > 0 ? (
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                        {formValues.media.map((media: ICarMedia, index: number) => (
+                                        {formValues.media.map((media, index) => (
                                             <div key={index} className="relative">
                                                 <div className="aspect-square rounded-md overflow-hidden">
                                                     <Image
@@ -1528,11 +2259,14 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                                                     </Badge>
                                                 )}
                                                 {media.title && <p className="text-sm mt-1 font-medium truncate">{media.title}</p>}
+                                                {media.description && (
+                                                    <p className="text-xs text-muted-foreground truncate">{media.description}</p>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-sm">No images added</p>
+                                    <p className="text-sm text-muted-foreground">No images added</p>
                                 )}
                             </AccordionContent>
                         </AccordionItem>
@@ -1541,7 +2275,7 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                             <AccordionTrigger>Translations</AccordionTrigger>
                             <AccordionContent>
                                 <div className="space-y-4">
-                                    {formValues.translations?.map((translation: CarTranslationDTO) => (
+                                    {formValues.translations?.map((translation) => (
                                         <div key={translation.locale} className="border rounded-md p-4">
                                             <div className="flex items-center gap-2 mb-3">
                                                 <span className="bg-primary text-primary-foreground px-2 py-1 rounded-md text-xs uppercase">
@@ -1564,6 +2298,73 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                                                     <Label className="text-xs text-muted-foreground">Description</Label>
                                                     <p className="text-sm line-clamp-2">{translation.description || "Not provided"}</p>
                                                 </div>
+
+                                                {(translation.color?.name || translation.interiorColor?.name) && (
+                                                    <div className="pt-2 border-t mt-2">
+                                                        <Label className="text-xs text-muted-foreground font-medium">Colors</Label>
+                                                        <div className="grid grid-cols-2 gap-4 mt-1">
+                                                            {translation.color?.name && (
+                                                                <div>
+                                                                    <Label className="text-xs text-muted-foreground">Exterior Color</Label>
+                                                                    <div className="flex items-center gap-2">
+                                                                        {translation.color.code && (
+                                                                            <div
+                                                                                className="w-4 h-4 rounded-full border"
+                                                                                style={{ backgroundColor: translation.color.code }}
+                                                                            />
+                                                                        )}
+                                                                        <p className="text-sm">{translation.color.name}</p>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {translation.interiorColor?.name && (
+                                                                <div>
+                                                                    <Label className="text-xs text-muted-foreground">Interior Color</Label>
+                                                                    <div className="flex items-center gap-2">
+                                                                        {translation.interiorColor.code && (
+                                                                            <div
+                                                                                className="w-4 h-4 rounded-full border"
+                                                                                style={{ backgroundColor: translation.interiorColor.code }}
+                                                                            />
+                                                                        )}
+                                                                        <p className="text-sm">{translation.interiorColor.name}</p>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {(translation.metaTitle || translation.metaDescription || translation.metaTags) && (
+                                                    <div className="pt-2 border-t mt-2">
+                                                        <Label className="text-xs text-muted-foreground font-medium">SEO Metadata</Label>
+                                                        {translation.metaTitle && (
+                                                            <div className="mt-1">
+                                                                <Label className="text-xs text-muted-foreground">Meta Title</Label>
+                                                                <p className="text-sm">{translation.metaTitle}</p>
+                                                            </div>
+                                                        )}
+                                                        {translation.metaDescription && (
+                                                            <div className="mt-1">
+                                                                <Label className="text-xs text-muted-foreground">Meta Description</Label>
+                                                                <p className="text-sm line-clamp-2">{translation.metaDescription}</p>
+                                                            </div>
+                                                        )}
+                                                        {translation.metaTags && (
+                                                            <div className="mt-1">
+                                                                <Label className="text-xs text-muted-foreground">Meta Tags</Label>
+                                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                                    {translation.metaTags.map((tag, i) => (
+                                                                        <Badge key={i} variant="outline" className="text-xs">
+                                                                            {tag.trim()}
+                                                                        </Badge>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -1573,30 +2374,6 @@ function Review({ form, car }: Readonly<{ form: CarFormReturnType; car?: any }>)
                     </Accordion>
                 </CardContent>
             </Card>
-
-            {car && (
-                <Card>
-                    <CardContent className="pt-6 space-y-4">
-                        <h3 className="text-lg font-medium">Information</h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">Created</span>
-                                <span className="text-sm">{new Date(car.createdAt).toLocaleDateString()}</span>
-                            </div>
-                            {car.updatedAt && (
-                                <div className="flex justify-between">
-                                    <span className="text-sm text-muted-foreground">Last updated</span>
-                                    <span className="text-sm">{new Date(car.updatedAt).toLocaleDateString()}</span>
-                                </div>
-                            )}
-                            <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">ID</span>
-                                <span className="text-sm font-mono">{car.id}</span>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
         </div>
     )
 }
