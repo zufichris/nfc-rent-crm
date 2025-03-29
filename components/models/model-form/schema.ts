@@ -5,6 +5,9 @@ import { z } from "zod";
 
 const CarModelTranslationsSchema = z.array(
     z.object({
+        locale:z.string({
+            message:"Locale Required"
+        }),
         name: z.string({
             message: "Name is required"
         }),
@@ -28,6 +31,7 @@ function getModelFormDefaultValues(model?: IModel): z.infer<typeof CarModelFormS
     return ({
         brandId: model?.brand?.id ?? "",
         translations: Languages.map(l => ({
+            locale:l.code,
             name: model?.name ?? "",
             description: model?.description ?? "",
             shortDescription: model?.shortDescription ?? "",
