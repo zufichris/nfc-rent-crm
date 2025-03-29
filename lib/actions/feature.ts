@@ -1,6 +1,8 @@
 'use server'
 import { GetFeaturesFilters, GetFeaturesResponse, IFeature } from "@/types/feature"
 import { featuresService } from "../services/feature"
+import { z } from "zod"
+import { CarFeatureFormSchema } from "@/components/feature/features-form/schema"
 
 
 export async function getFeatureById(id: string) {
@@ -18,12 +20,12 @@ export async function deleteFeature(id: string) {
     return data
 }
 
-export async function updateFeature(feature: Partial<IFeature>) {
-    const data = await featuresService.getFeatureById(feature.id!)
-    return data
+export async function createFeature(data: z.infer<typeof CarFeatureFormSchema>) {
+    const res = await featuresService.create(data)
+    return res
 }
 
-export async function createFeature(feature: Partial<IFeature>) {
-    const data = await featuresService.getFeatureById(feature.id!)
-    return data
+export async function updateFeature(id:string,feature: z.infer<typeof CarFeatureFormSchema>) {
+    const res = await featuresService.update(id,feature)
+    return res
 }
