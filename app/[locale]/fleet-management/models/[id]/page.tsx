@@ -84,6 +84,29 @@ export default async function ModelDetailPage({
         <Sidebar model={model} />
       </div>
       <ModelTabs model={model} />
+      <Card>
+        <CardHeader>
+          <CardTitle>System Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Created</span>
+              <span>{formatDate(new Date(model.createdAt))}</span>
+            </div>
+            {model.updatedAt && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Updated</span>
+                <span>{formatDate(new Date(model.updatedAt))}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">ID</span>
+              <span className="font-mono text-xs">{model.id}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -116,21 +139,11 @@ function Header({ model }: { model: any }) {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link href={`/fleet-management/models/${model.id}/edit`}>
-                <Button variant="outline">Edit Model</Button>
+                <Button>Edit Model</Button>
               </Link>
             </TooltipTrigger>
             <TooltipContent>
               <p>Edit this model's details</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button>View Cars</Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>View all cars of this model</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -225,29 +238,6 @@ function Sidebar({ model }: { model: any }) {
           </div>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>System Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Created</span>
-              <span>{formatDate(new Date(model.createdAt))}</span>
-            </div>
-            {model.updatedAt && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Updated</span>
-                <span>{formatDate(new Date(model.updatedAt))}</span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">ID</span>
-              <span className="font-mono text-xs">{model.id}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
@@ -301,6 +291,16 @@ function ModelTabs({ model }: { model: any }) {
       </TabsContent>
       <TabsContent value="metadata">
         <Card>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button>View Cars</Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>View all cars of this model</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <CardHeader>
             <CardTitle>Metadata</CardTitle>
             <CardDescription>SEO and additional information</CardDescription>
