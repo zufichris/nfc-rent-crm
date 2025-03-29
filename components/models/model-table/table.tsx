@@ -53,10 +53,10 @@ export function ModelTable({
         setSelectedItems={setSelectedModels}
         selectedItems={selectedModels ?? []}
         onEdit={(model) => {
-          router.push(`/fleet-management/models/${model.id}#edit`)
+          router.push(`/fleet-management/models/${model.id}/edit`)
         }}
         onAdd={() => {
-          router.push("/fleet-management/models#new")
+          router.push("/fleet-management/models/new")
         }}
         onView={(model) => {
           setSelectedModel(model)
