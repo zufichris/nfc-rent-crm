@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
-import BrandForm from "@/components/brands/brand-form"
+import { BrandForm } from "@/components/brands/brands-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getBrandById } from "@/lib/actions/brands"
-import { PageShell } from "@/components/layout/page-shell"
+import ErrorPage from "@/app/[locale]/error"
 
 interface EditBrandPageProps {
     params: Promise<{
@@ -21,21 +20,24 @@ export default async function EditBrandPage({ params }: Readonly<EditBrandPagePr
     const res = await getBrandById(id)
 
     if (!res.success) {
-        notFound()
+        return <ErrorPage error={{
+            message: res.message,
+            status: res.status
+        }} />
     }
 
     return (
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-3xl font-bold tracking-tight">Edit Brand</CardTitle>
-                    <CardDescription className="text-muted-foreground">
-                        Update brand information with AI-powered suggestions and multi-language support.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <BrandForm brand={res.data} />
-                </CardContent>
-            </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle className="text-3xl font-bold tracking-tight">Edit Brand</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                    Update brand information with AI-powered suggestions and multi-language support.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <BrandForm existingBrand={res.data} />
+            </CardContent>
+        </Card>
     )
 }
 
