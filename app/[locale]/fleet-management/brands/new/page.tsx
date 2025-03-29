@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import BrandForm from "@/components/brands/brand-form"
+import { BrandForm } from "@/components/brands/brands-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const metadata: Metadata = {
