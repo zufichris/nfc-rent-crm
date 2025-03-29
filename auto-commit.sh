@@ -1,27 +1,32 @@
 #!/bin/bash
 
-# Define commit messages for each file
-declare -A commit_messages=(
-    ["auto-commit.sh"]="Update auto-commit script for improved automation."
-    ["types/shared.ts"]="Refactor shared types to enhance reusability."
-    ["components/cars/car-form.tsx"]="Remove outdated car form component."
-    ["lib/services/bookings.ts"]="Delete unused booking service to clean up codebase."
-    ["types/features.ts"]="Remove deprecated feature types."
-    ["components/feature/car-features-input.tsx"]="Add car features input component."
-    ["components/misc/multi-select.tsx"]="Introduce reusable multi-select component."
-    ["components/models/models-select.tsx"]="Implement models select dropdown component."
-)
+# Define the branch to push to
+BRANCH="main"
 
-# Add, commit, and push each file
-for file in "${!commit_messages[@]}"; do
-    if [ -e "$file" ]; then
-        git add "$file"
-        git commit -m "${commit_messages[$file]}"
-    else
-        echo "Skipping $file (not found)"
-    fi
+# Get the list of modified, deleted, and untracked files
+FILES=$(git status --porcelain | awk '{print $2}')
+
+# Loop over each file/directory
+for file in $FILES; do
+  echo "Processing: $file"
+
+  # Add the file (handles modifications, deletions, and untracked files)
+  git add "$file"
+
+  # Check if there is something to commit
+  if git diff --cached --quiet; then
+    echo "No changes to commit for $file."
+    continue
+  fi
+
+  # Commit with a message including the file path
+  git commit -m "Update: $file"
+
+  # Push the commit
+  git push origin "$BRANCH"
+
+  # Optional: Sleep briefly to avoid overwhelming the remote server
+  sleep 1
 done
 
-# Push changes
-git push origin $(git rev-parse --abbrev-ref HEAD)
-
+echo "All files processed and pushed."
