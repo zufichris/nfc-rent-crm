@@ -1,4 +1,5 @@
 import { env } from "@/config/env";
+import { z } from "zod";
 
 export interface IBaseEntity {
     id: string;
@@ -54,7 +55,8 @@ export type IResponse<Data = unknown> = ResSuccess<Data> | ResError
 
 export type IResponsePaginated<TData = unknown> = ResPaginated<TData> | ResError
 
-
+export type DateInputType = string | Date;
+export type NonEmptyArray<T> = [T, ...T[]];
 export class BaseService {
     methods = {
         POST: "POST",
@@ -63,6 +65,13 @@ export class BaseService {
         DELETE: "DELETE"
     }
     apiUrl = env.apiUrl
+    validate<T=unknown>(schema: z.ZodSchema, data: unknown) {
+        const valid = schema.safeParse(data)
+        if (valid.success) {
+            return { data: valid.data as T, error: undefined }
+        }
+        return { error: valid.error.message }
+    }
     handleError({
         message = "An Unexpected Error Occurred",
         status = 500,

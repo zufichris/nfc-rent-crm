@@ -1,50 +1,75 @@
+import { CarFormSchema } from "@/components/cars/car-form/schema";
 import { generateFakeCar } from "@/mock.data";
 import { GetCarsFilter, GetCarsResponse, ICar } from "@/types/car";
-import { BaseService, IResponse} from "@/types/shared";
-import { promisify } from "util";
-
+import { BaseService, IResponse, IResponsePaginated } from "@/types/shared";
+import { request } from "@/utils/functions";
 export class CarService extends BaseService {
-    car: ICar = generateFakeCar()
-    cars: ICar[] = Array.from({ length: 20 }).map(x => generateFakeCar())
     constructor(private readonly basePath: string) {
         super()
     }
-
-    async getCarById(id: number): Promise<IResponse<ICar>> {
+    async create(data: Record<string, unknown>) {
         try {
-            // const res = await request<IResponse<ICar>>(`${this.basePath}/${id}`)
-            // return res
-            await promisify(setTimeout)(1900)
-            return ({
-                success: true,
-                message: "Car Retrieved",
-                data: this.car
-            })
+            const valid = this.validate(CarFormSchema,data)
+            if (!valid.error) {
+                const res = await request<IResponse<ICar>>(`${this.basePath}`, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                })
+                return res
+            } else {
+                return this.handleError({
+                    message: valid.error,
+                    status: 400
+                })
+            }
+        } catch (error) {
+            return this.handleError({})
+        }
+    }
+    async update(data: Record<string, unknown>) {
+        try {
+            const valid = this.validate(CarFormSchema,data)
+            if (!valid.error) {
+                const res = await request<IResponse<ICar>>(`${this.basePath}`, {
+                    method: "PUT",
+                    body: JSON.stringify(data)
+                })
+                return res
+            } else {
+                return this.handleError({
+                    message: valid.error,
+                    status: 400
+                })
+            }
+        } catch (error) {
+            return this.handleError({})
+        }
+    }
+    async getCarById(id: string): Promise<IResponse<ICar>> {
+        try {
+            const res = await request<IResponse<ICar>>(`${this.basePath}/${id}`)
+            return res
         } catch (error) {
             return this.handleError({})
         }
     }
     async getCars(filters?: GetCarsFilter): Promise<GetCarsResponse> {
         try {
-            // const res = await request<IResponsePaginated<ICar>>(`${this.basePath}?${query}`)
-            // return res
-            await promisify(setTimeout)(100)
-
+            const stringifiedFilters = Object.entries(filters ?? {}).reduce((acc, [key, value]) => ({
+                ...acc,
+                [key]: String(value)
+            }), {})
+            const query = new URLSearchParams(stringifiedFilters).toString()
+            const res = await request<IResponsePaginated<ICar>>(`${this.basePath}?${query}`)
             return ({
-                success: true,
-                message: "Cars Retrieved",
-                data: this.cars,
-                limit: this.cars.length,
-                page: 1,
-                total: this.cars.length,
-                activeCount: this.cars.filter(x => x.isActive).length,
-                deletedCount: this.cars.filter(x => x.isDeleted).length,
+                ...res,
+                activeCount: res.success ? res.data.filter(x => x.isActive).length : 0,
+                deletedCount: res.success ? res.data.filter(x => x.isDeleted).length : 0,
             })
         } catch (error) {
             return this.handleError({})
         }
     }
-
 }
 
-export const carsService = new CarService('/cars')
+export const carsService = new CarService('/api/v1/cars')

@@ -6,6 +6,7 @@ import { userAgent } from "next/server";
 import { redirect } from "next/navigation";
 import { request } from "@/utils/functions";
 import { userService } from "../services/user";
+import { revalidatePath } from "next/cache";
 
 
 export async function getLoggedInUser() {
@@ -14,22 +15,41 @@ export async function getLoggedInUser() {
 }
 
 export async function login(data: {
-    email?: string;
-    password?: string;
+    email: string;
+    password: string;
 }) {
     const res = await authService.login(data)
-    if (res.success) {
-        await setCookie("access_token", res.data.accessToken)
+    if (res.success && res.data.accessToken) {
+        await setCookie("access_token", res.data.accessToken.value)
+        await setCookie("refresh_token", res.data.refreshToken.value)
+        revalidatePath("/", "layout")
     }
     return res
 }
 
-
+export async function requestOtp(email: string) {
+    const res = await authService.requestOtp(email)
+    return res
+}
+export async function verifyOtp(data: {
+    email: string;
+    code: string;
+    token: string;
+}) {
+    const res = await authService.verifyOtp(data)
+    if (res.success && res.data.accessToken) {
+        await setCookie("access_token", res.data.accessToken.value)
+        await setCookie("refresh_token", res.data.refreshToken.value)
+        revalidatePath("/", "layout")
+    }
+    return res
+}
 
 export async function logout() {
     const loggedIn = await getLoggedInUser()
     const cookieStore = await cookies()
     cookieStore.delete("access_token")
+    cookieStore.delete("refresh_token")
     if (loggedIn.success) {
         const userAgent = await getUserAgent()
         await authService.logout({ userId: loggedIn.data.id, ...userAgent })
@@ -52,7 +72,7 @@ export async function getUserAgent() {
     return ({ location, deviceName: `${"agent.device.vendor"} ${"agent.device.vendor"}`, idToken: "agent.ua" })
 }
 
-export async function setCookie(key: "access_token", value: string) {
+export async function setCookie(key: "access_token"|"refresh_token", value: string) {
     const cookieStore = await cookies()
     cookieStore.set(key, value)
 }

@@ -4,26 +4,41 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { Languages } from './types/language';
 
-const publicRoutes = ['/signin'];
+const publicRoutes = [
+    '/signin',
+    '/not-found',
+    '/error',
+    '/verify',
+];
+
 const intlMiddleware = createMiddleware(routing);
 
 export function middleware(request: NextRequest) {
-    const response = intlMiddleware(request);
-    const { pathname, searchParams } = request.nextUrl;
-    const queryParams = searchParams.toString();
+    const { pathname } = request.nextUrl;
+
     const segments = pathname.split('/').filter(Boolean);
     const locale = segments[0] && Languages.some(lang => lang.code === segments[0]) ? segments[0] : 'en';
-    const token = request.cookies.get('token')?.value;
-    const isProtectedRoute = publicRoutes.includes(`/${segments.slice(1).join('/')}`);
 
-    if (isProtectedRoute && !token) {
-        const callbackUrl = encodeURIComponent(`${pathname}${queryParams ? `?${queryParams}` : ''}`);
-        const loginUrl = new URL(`/${locale}/signin?callbackUrl=${callbackUrl}`, request.url);
-        return NextResponse.redirect(loginUrl);
+    const pathWithoutLocale = segments.length > 0 && Languages.some(lang => lang.code === segments[0])
+        ? `/${segments.slice(1).join('/')}`
+        : pathname;
+
+    const isPublicRoute = publicRoutes.some(route =>
+        pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`)
+    );
+
+    const token = request.cookies.get('access_token')?.value;
+
+    if (pathWithoutLocale === '/signin' && token) {
+        return NextResponse.redirect(new URL(`/${locale}`, request.url));
     }
-    return response;
-}
 
+    if (!isPublicRoute && !token) {
+        return NextResponse.redirect(new URL(`/${locale}/signin`, request.url));
+    }
+
+    return intlMiddleware(request);
+}
 export const config = {
     matcher: ['/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)'],
 };

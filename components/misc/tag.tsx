@@ -15,7 +15,7 @@ interface TagInputProps {
     disabled?: boolean
 }
 
-export function TagInput({ placeholder, tags, setTags, disabled = false }: TagInputProps) {
+export function TagInput({ placeholder, tags=[], setTags, disabled = false }: TagInputProps) {
     const [inputValue, setInputValue] = useState("")
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +39,7 @@ export function TagInput({ placeholder, tags, setTags, disabled = false }: TagIn
     return (
         <div className="flex flex-col gap-3">
             <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => (
+                {Array.isArray(tags)?tags.map((tag, index) => (
                     <Badge key={index} variant="secondary" className="gap-1 px-2 py-1">
                         {tag}
                         <button
@@ -52,7 +52,7 @@ export function TagInput({ placeholder, tags, setTags, disabled = false }: TagIn
                             <span className="sr-only">Remove {tag}</span>
                         </button>
                     </Badge>
-                ))}
+                )):new String(tags)}
             </div>
             <Input
                 value={inputValue}

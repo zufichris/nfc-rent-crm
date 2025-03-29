@@ -5,47 +5,50 @@ import { Star, Tag } from "lucide-react"
 import Link from "next/link"
 import { formatDate } from "@/utils/format"
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
-import { IFeature } from "@/types/features"
- const feature: IFeature = {
-    id: "featureId",
-    name: "Leather Seats",
-    code: "leather-seats",
-    slug: "leather-seats",
-    category: "interior",
-    isHighlighted: true,
-    shortDescription: "Premium leather seats for maximum comfort.",
-    description:
-      "Our premium leather seats are handcrafted with the finest materials to provide maximum comfort and luxury during your drive. Each seat is meticulously stitched and designed to provide optimal support and comfort for long journeys.\n\nThe leather is sourced from the finest suppliers and treated to be durable, stain-resistant, and easy to clean. Available in multiple colors to match your car's interior design.",
-    isActive: true,
-    isDeleted: false,
-    createdAt: "2023-01-05",
-  }
+import { IFeature } from "@/types/feature"
+import { getFeatureById } from "@/lib/actions/feature"
+import ErrorPage from "@/app/[locale]/error"
 
-  export async function generateMetadata({ params }: { params: { id: string } }) {
-    return {
-      title: `${feature.name} - Feature Details | NFC Car Rental CRM`,
-      description: feature.shortDescription || `Detailed information about ${feature.name} feature in our vehicle fleet`,
-      openGraph: {
-        title: `${feature.name} - Feature Details`,
-        description: feature.shortDescription,
-        type: 'website',
-        images: ['/images/features-og.jpg'],
-      },
-      robots: {
-        index: true,
-        follow: true,
-      },
-      alternates: {
-        canonical: `/fleet-management/features/${feature.id}`,
-      }
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const res = await getFeatureById(id)
+  if (!res.success) {
+    return ({
+      title: res.status,
+      description: res.message
+    })
+  }
+  const feature = res.data
+  return {
+    title: `${feature.name} - Feature Details | NFC Car Rental CRM`,
+    description: feature.shortDescription || `Detailed information about ${feature.name} feature in our vehicle fleet`,
+    openGraph: {
+      title: `${feature.name} - Feature Details`,
+      description: feature.shortDescription,
+      type: 'website',
+      images: ['/images/features-og.jpg'],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: `/fleet-management/features/${feature.id}`,
     }
   }
+}
 
-export default async function FeatureDetailPage({ params }: { params: { id: string } }) {
-  const featureId = params.id
-
- 
-
+export default async function FeatureDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const res = await getFeatureById(id)
+  if (!res.success) {
+    return <ErrorPage error={{
+      message: res.message,
+      status: res.status
+    }} />
+  }
+  const feature = res.data
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -55,7 +58,7 @@ export default async function FeatureDetailPage({ params }: { params: { id: stri
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                  <Star className="h-5 w-5 text-warning fill-warning" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Highlighted Feature</p>
@@ -68,7 +71,7 @@ export default async function FeatureDetailPage({ params }: { params: { id: stri
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link href={`/features/${featureId}/edit`}>
+                <Link href={`/fleet-management/features/${id}/edit`}>
                   <Button variant="outline">Edit Feature</Button>
                 </Link>
               </TooltipTrigger>
@@ -113,7 +116,6 @@ export default async function FeatureDetailPage({ params }: { params: { id: stri
                     <p className="text-sm">{feature.shortDescription}</p>
                   </div>
                 )}
-
                 {feature.description && (
                   <div>
                     <h3 className="text-sm font-medium mb-2">Full Description</h3>

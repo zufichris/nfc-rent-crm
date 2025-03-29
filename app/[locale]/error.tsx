@@ -3,11 +3,13 @@
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { AlertCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function ErrorPage(props: Readonly<{
     error?: Partial<Error & { digest: string, status: number }>,
     reset?: () => void
 }>) {
+    const router =useRouter()
     useEffect(() => {
         console.error(props.error)
     }, [props.error])
@@ -27,11 +29,13 @@ export default function ErrorPage(props: Readonly<{
                 <Button onClick={() => {
                     if (props.reset) {
                         props.reset()
+                    }else{
+                        router.refresh()
                     }
                 }} variant="default">
                     Try again
                 </Button>
-                <Button onClick={() => (window.location.href = "/")} variant="outline">
+                <Button onClick={() => router.push("/")} variant="outline">
                     Go back home
                 </Button>
             </div>

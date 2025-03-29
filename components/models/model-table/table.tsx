@@ -2,17 +2,14 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import type { IModel, IBrand } from "@/types/brand"
 import { DataTableFilter } from "@/components/misc/table/filter"
 import { DataTable } from "@/components/misc/table/data-table"
 import { ModelDetailModal } from "./action-modals"
 import { ModelTableColumns } from "./columns"
+import { IModel } from "@/types/model"
 
 type ModelTableProps = Readonly<{
   models: IModel[]
-  brands?: IBrand[]
-  tableTitle?: string
-  tableName?: string
   total: number
   page: number
   limit: number
@@ -27,11 +24,8 @@ const modelFilters: DataTableFilter[] = [
 
 export function ModelTable({
   models = [],
-  brands = [],
   total = 0,
   page = 1,
-  tableName = "Models",
-  tableTitle = "Manage Your Models",
   limit = 10,
   activeFilters = {},
 }: ModelTableProps) {
@@ -41,24 +35,13 @@ export function ModelTable({
   const [modalOpen, setModalOpen] = useState(false)
 
   const filters = [...modelFilters]
-  if (brands && brands.length > 0) {
-    filters.push({
-      key: "brand",
-      name: "Brand",
-      type: "select",
-      options: brands.map((brand) => ({
-        label: brand.name,
-        value: brand.id,
-      })),
-    })
-  }
 
   return (
     <>
       <DataTable
         total={total}
-        title={tableTitle}
-        name={tableName}
+        title={"Available Models"}
+        name={"models"}
         limit={limit}
         page={page}
         items={models}
@@ -70,10 +53,10 @@ export function ModelTable({
         setSelectedItems={setSelectedModels}
         selectedItems={selectedModels ?? []}
         onEdit={(model) => {
-          router.push(`/fleet-management/models/${model.id}#edit`)
+          router.push(`/fleet-management/models/${model.id}/edit`)
         }}
         onAdd={() => {
-          router.push("/fleet-management/models#new")
+          router.push("/fleet-management/models/new")
         }}
         onView={(model) => {
           setSelectedModel(model)

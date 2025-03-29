@@ -1,7 +1,6 @@
 import { Card, CardDescription, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Progress } from "@/components/ui/progress"
-import { PageShell } from "@/components/layout/page-shell"
 
 export default function EditCarLoading() {
     return (

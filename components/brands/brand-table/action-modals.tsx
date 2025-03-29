@@ -118,34 +118,34 @@ function ViewBrandModal({ brand, isOpen, onClose, onSuccess }: ModalProps & { br
             </div>
           )}
 
-          {brand.metadata && (
+          {brand?.metadata ? (
             <div className="grid gap-3">
               <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Metadata</Label>
               <div className="grid gap-3 bg-accent/10 p-3 rounded-md border">
                 <div className="grid gap-1">
                   <span className="text-xs text-muted-foreground font-medium">Title</span>
-                  <div className="text-sm font-medium">{brand.metadata.title}</div>
+                  <div className="text-sm font-medium">{brand?.metadata?.title ?? "Not Available"}</div>
                 </div>
                 <div className="grid gap-1">
                   <span className="text-xs text-muted-foreground font-medium">Description</span>
-                  <div className="text-sm">{brand.metadata.description}</div>
+                  <div className="text-sm">{brand?.metadata?.description ?? "Not Available"}</div>
                 </div>
                 <div className="grid gap-1">
                   <span className="text-xs text-muted-foreground font-medium">Tags</span>
                   <div className="flex flex-wrap gap-2">
-                    {brand.metadata.tags.map((tag, index) => (
+                    {brand?.metadata?.tags?.length ? brand?.metadata?.tags.map((tag, index) => (
                       <Badge key={index + tag} variant="secondary" className="flex items-center gap-1">
                         <Tag className="h-3 w-3" />
                         {tag}
                       </Badge>
-                    ))}
+                    )) : "No Tags Available"}
                   </div>
                 </div>
               </div>
             </div>
-          )}
+          ) : null}
 
-          {brand.models && brand.models.length > 0 && (
+          {brand.models ? (
             <div className="grid gap-2">
               <Label className="text-xs uppercase text-muted-foreground font-medium tracking-wide">Models</Label>
               <div className="flex flex-wrap gap-2 bg-accent/10 p-3 rounded-md border">
@@ -156,7 +156,7 @@ function ViewBrandModal({ brand, isOpen, onClose, onSuccess }: ModalProps & { br
                 ))}
               </div>
             </div>
-          )}
+          ) : "No Models Available"}
 
           <div className="grid grid-cols-2 gap-6 text-sm text-muted-foreground">
             <div>
@@ -175,7 +175,7 @@ function ViewBrandModal({ brand, isOpen, onClose, onSuccess }: ModalProps & { br
         <DialogFooter className="px-6 py-4 border-t">
           <Button variant={"outline"} onClick={onClose}>Close</Button>
           <Link href={`/fleet-management/brands/${brand.id}`}>
-            <Button>Full Details <ArrowRight size={20}/></Button>
+            <Button>Full Details <ArrowRight size={20} /></Button>
           </Link>
         </DialogFooter>
       </DialogContent>

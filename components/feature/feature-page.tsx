@@ -1,5 +1,5 @@
 import React from "react";
-import { IFeature } from "@/types/features";
+import { IFeature } from "@/types/feature";
 import { Button } from "@/components/ui/button";
 import {
     Card,

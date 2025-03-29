@@ -1,6 +1,6 @@
 import { DataTableColumn, renderStatus } from "@/components/misc/table/data-table"
 import { Badge } from "@/components/ui/badge"
-import { IFeature } from "@/types/features"
+import { IFeature } from "@/types/feature"
 import { formatDate } from "@/utils/format"
 
 export const FeatureTableColumns: DataTableColumn[] = [
